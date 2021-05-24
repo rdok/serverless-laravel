@@ -1,0 +1,50 @@
+name: Deploy
+env:
+  ORG: rdok
+  NAME: aws-sam-laravel
+  AWS_DEFAULT_REGION: eu-west-1
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: false
+        description: "Allowed values: prod, test"
+        default: prod
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prepare environment variables
+        id: env
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+        run: |
+          [ "$ENVIRONMENT" = "" ] && ENVIRONMENT=test
+
+          if [ "$ENVIRONMENT" == "test" ]; then
+            echo "TODO: additional test params to override"
+          elif [ "$ENVIRONMENT" == "prod" ]; then
+            echo "TODO: additional prod params to override"
+          else
+            printf '%s\n' "ENVIRONMENT is not in accepted range: test, prod." >&2
+            exit 1
+          fi
+
+          echo ::set-output name=name::"${NAME}"
+          echo ::set-output name=stack-name::"${ORG}-${ENVIRONMENT}-${NAME}"
+          echo ::set-output name=cicd-bucket::"${ORG}-${ENVIRONMENT}-cicd"
+      - name: Build
+        run: make vendor
+      - name: Deploy
+        run: |
+          sam deploy \
+            --s3-bucket "${{ steps.env.outputs.cicd-bucket }}" \
+            --s3-prefix "${{ steps.env.outputs.name }}" \
+            --stack-name "${{ steps.env.outputs.stack-name }}" \
+            --capabilities CAPABILITY_IAM \
+            --no-fail-on-empty-changeset
