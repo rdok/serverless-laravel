@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: AWS SAM & Laravel template using bref.
+Resources:
+  MainFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
+      Tracing: Active
+      MemorySize: 1024
+      CodeUri: .
+      Layers: ["arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:9"]
+      Handler: public/index.php
+      Runtime: provided.al2
+      Environment:
+        Variables:
+          APP_STORAGE: /tmp
+      Events:
+        Root:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: ANY
+        Proxy:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+Outputs:
+  API:
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
