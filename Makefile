@@ -20,3 +20,13 @@ shell:
 config-clear:
 	docker run --user $${UID}:$${GID} --volume "${CURRENT_DIR}":/app \
 		composer:2.0 bash -c 'php artisan config:clear'
+
+
+deploy:
+# NOTE: config:cache is skipped due to breaking views path finding.
+	docker run -it --user $${UID}:$${GID} -w /app --volume "${CURRENT_DIR}":/app composer:2.0 bash -c " \
+		composer install --optimize-autoloader --no-dev && \
+		php artisan route:cache && \
+		php artisan view:cache \
+	"
+	sam deploy
