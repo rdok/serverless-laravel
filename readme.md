@@ -20,5 +20,5 @@ Includes CI/CD using [GitHub Actions][ci_cd].
 [cd_prod_badge]: https://github.com/rdok/aws-sam-laravel/actions/workflows/deploy.yml/badge.svg?event=workflow_dispatch
 [cd_prod]: https://github.com/rdok/aws-sam-laravel/actions/workflows/deploy.yml
 [prod_site_badge]: https://img.shields.io/badge/prod-grey?style=flat-square&logo=heroku
-[prod_site]: https://cqs0b0w0kk.execute-api.eu-west-1.amazonaws.com/
+[prod_site]: https://dzbqyvm7dn9up.cloudfront.net/
 [design]: ./readme-design.png
