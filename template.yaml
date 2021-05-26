@@ -47,6 +47,18 @@ Resources:
             Method: ANY
   Assets:
     Type: AWS::S3::Bucket
+  AssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: Assets
+      PolicyDocument:
+        Statement:
+          Effect: Allow
+          Action: s3:GetObject
+          Principal:
+            CanonicalUser: !GetAtt CDNIdentity.S3CanonicalUserId
+          Resource: !Sub "${Assets.Arn}/*"
   Domain:
     Type: AWS::Route53::RecordSet
     Properties:
@@ -55,9 +67,7 @@ Resources:
       Type: A
       AliasTarget:
         HostedZoneId: Z2FDTNDATAQYW2
-        DNSName: !GetAtt
-          - CDN
-          - DomainName
+        DNSName: !GetAtt CDN.DomainName
   CDN:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -72,10 +82,11 @@ Resources:
           - Id: LaravelOriginId
             DomainName: !Join [ '.', [ !Ref ServerlessHttpApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com' ] ]
             CustomOriginConfig:
-              OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
+              OriginProtocolPolicy: 'https-only'
           - Id: Assets
             DomainName: !GetAtt Assets.RegionalDomainName
-            S3OriginConfig: { } # this key is required to tell CloudFront that this is an S3 origin, even though nothing is configured
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CDNIdentity}"
         DefaultCacheBehavior:
           AllowedMethods: [ GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE ]
           TargetOriginId: LaravelOriginId
@@ -101,6 +112,11 @@ Resources:
               Cookies:
                 Forward: none
             Compress: true
+  CDNIdentity:
+    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub "${DomainName}"
 Outputs:
   Domain:
     Value: !Sub "https://${DomainName}"
