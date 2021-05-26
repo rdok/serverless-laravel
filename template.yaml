@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: AWS SAM & Laravel template using bref.
+Description: >
+  AWS SAM & Laravel template using bref.
+
+  https://github.com/aws-samples/php-examples-for-aws-lambda/blob/master/0.4-Building-A-Serverless-Laravel-App-With-AWS-SAM/template.yaml
+
 Parameters:
   CertificateARN:
     Type: String
@@ -25,6 +29,11 @@ Resources:
       Environment:
         Variables:
           APP_STORAGE: /tmp
+          AWS_PUBLIC_BUCKET: !Ref Assets
+          FILESYSTEM_DRIVER: s3
+          MIX_ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
+          ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
+          LOG_CHANNEL: stderr
       Events:
         Root:
           Type: HttpApi
@@ -36,6 +45,8 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: ANY
+  Assets:
+    Type: AWS::S3::Bucket
   Domain:
     Type: AWS::Route53::RecordSet
     Properties:
@@ -62,10 +73,9 @@ Resources:
             DomainName: !Join [ '.', [ !Ref ServerlessHttpApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com' ] ]
             CustomOriginConfig:
               OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
-#          # The assets (S3)
-#          - Id: Assets
-#            DomainName: !GetAtt Assets.RegionalDomainName
-#            S3OriginConfig: { } # this key is required to tell CloudFront that this is an S3 origin, even though nothing is configured
+          - Id: Assets
+            DomainName: !GetAtt Assets.RegionalDomainName
+            S3OriginConfig: { } # this key is required to tell CloudFront that this is an S3 origin, even though nothing is configured
         DefaultCacheBehavior:
           AllowedMethods: [ GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE ]
           TargetOriginId: LaravelOriginId
@@ -80,19 +90,19 @@ Resources:
               - 'Origin'
               - 'Referer'
           ViewerProtocolPolicy: redirect-to-https
-#        CacheBehaviors:
-#          # Assets will be served under the `/assets/` prefix
-#          - PathPattern: 'assets/*'
-#            TargetOriginId: Assets # the static files on S3
-#            AllowedMethods: [ GET, HEAD ]
-#            ViewerProtocolPolicy: redirect-to-https
-#            ForwardedValues:
-#              # No need for all that with assets
-#              QueryString: 'false'
-#              Cookies:
-#                Forward: none
-#            #ViewerProtocolPolicy: redirect-to-https
-#            Compress: true
+        CacheBehaviors:
+          - PathPattern: 'assets/*'
+            TargetOriginId: Assets
+            AllowedMethods: [ GET, HEAD ]
+            ViewerProtocolPolicy: redirect-to-https
+            ForwardedValues:
+              # No need for all that with assets
+              QueryString: 'false'
+              Cookies:
+                Forward: none
+            Compress: true
 Outputs:
   Domain:
     Value: !Sub "https://${DomainName}"
+  AssetsBucketARN:
+    Value: !Ref Assets
