@@ -4,7 +4,7 @@ Description: >
   The certificate for the subdomain.
 
   CloudFront only supports ACM certificates in the US East (N. Virginia) Region (us-east-1).
-  Thus this template is created separately on the us-east-1.
+  Thus this template is created separately on the us-east-1 region.
 
 Parameters:
   DomainName:
