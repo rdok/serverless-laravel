@@ -94,8 +94,7 @@ Resources:
             QueryString: true
             Cookies:
               Forward: all
-            # We must *not* forward the `Host` header else it messes up API Gateway
-            Headers:
+            Headers: # Do not forward `Host` as it messes up the API Gateway
               - 'Accept'
               - 'Accept-Language'
               - 'Origin'
@@ -106,8 +105,7 @@ Resources:
             TargetOriginId: Assets
             AllowedMethods: [ GET, HEAD ]
             ViewerProtocolPolicy: redirect-to-https
-            ForwardedValues:
-              # No need for all that with assets
+            ForwardedValues: # No need for all that with assets
               QueryString: 'false'
               Cookies:
                 Forward: none
