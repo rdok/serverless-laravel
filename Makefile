@@ -2,12 +2,12 @@ export UID=$(shell id -u)
 export GID=$(shell id -g)
 export LARAVEL_DIR=$(shell pwd)/laravel
 
-start: ${LARAVEL_DIR}/vendor/bin/sail
+up: ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && \
 		./vendor/bin/sail up -d && \
 		./vendor/bin/sail npm install && \
 		./vendor/bin/sail npm run watch-poll
-	# Visit http://localhost
+	# http://localhost
 
 down: ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && \
