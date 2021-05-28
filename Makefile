@@ -27,26 +27,26 @@ deploy: config-clear npm-cleanup composer-prod
 		--query 'Stacks[0].Outputs[?OutputKey==`CertificateARN`].OutputValue' \
 		--output text) && \
 	DB_VPC_ID=$$(aws ec2 describe-vpcs \
-        --filters Name=isDefault,Values=true \
-        --query 'Vpcs[*].VpcId' \
-        --output text) && \
+		--filters Name=isDefault,Values=true \
+		--query 'Vpcs[*].VpcId' \
+		--output text) && \
 	DB_SUBNET_IDS=$$(aws ec2 describe-subnets \
-        --filters Name=vpc-id,Values=$$DB_VPC_ID \
-        --query 'Subnets[*].SubnetId' \
-        --output text) && \
-    DB_SUBNET_IDS=$$(echo $$DB_SUBNET_IDS | sed 's/ /,/g') && \
+		--filters Name=vpc-id,Values=$$DB_VPC_ID \
+		--query 'Subnets[*].SubnetId' \
+		--output text) && \
+	DB_SUBNET_IDS=$$(echo $$DB_SUBNET_IDS | sed 's/ /,/g') && \
 	DB_SECURITY_GROUP_ID=$$(aws ec2 describe-security-groups \
-	    --filter Name=group-name,Values=default \
-	    --query 'SecurityGroups[*].GroupId' \
-	    --output text) && \
+		--filter Name=group-name,Values=default \
+		--query 'SecurityGroups[*].GroupId' \
+		--output text) && \
 	DB_SECRETS_ARN=$$(aws cloudformation describe-stacks  \
-        --stack-name 'rdok-local-aws-sam-laravel-database' \
-        --query 'Stacks[0].Outputs[?OutputKey==`SecretsARN`].OutputValue' \
-        --output text) && \
+		--stack-name 'rdok-local-aws-sam-laravel-database' \
+		--query 'Stacks[0].Outputs[?OutputKey==`SecretsARN`].OutputValue' \
+		--output text) && \
 	DB_HOST=$$(aws cloudformation describe-stacks  \
-       --stack-name 'rdok-local-aws-sam-laravel-database' \
-       --query 'Stacks[0].Outputs[?OutputKey==`DBHost`].OutputValue' \
-       --output text) && \
+	   --stack-name 'rdok-local-aws-sam-laravel-database' \
+	   --query 'Stacks[0].Outputs[?OutputKey==`DBHost`].OutputValue' \
+	   --output text) && \
 	sam deploy --parameter-overrides \
 		DbVpcId=$$DB_VPC_ID \
 		DbSubnetIds=$$DB_SUBNET_IDS \
