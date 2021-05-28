@@ -20,7 +20,7 @@ config-clear: ${LARAVEL_DIR}/vendor
 	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app \
 		composer:2.0 bash -c 'php artisan config:clear'
 
-deploy: config-clear npm-cleanup composer-prod
+deploy-laravel: config-clear npm-cleanup composer-prod
 	CERTIFICATE_ARN=$$(aws cloudformation describe-stacks  \
 		--region us-east-1 \
 		--stack-name 'rdok-local-aws-sam-laravel-certificate' \
@@ -58,7 +58,7 @@ deploy: config-clear npm-cleanup composer-prod
 		WildcardCertificateARN='arn:aws:acm:us-east-1:353196159109:certificate/b7e23fbf-69a3-440f-8560-59f240f2cc09' \
 		Route53HostedZoneId="ZSY7GT2NEDPN0"
 
-assets-deploy:
+deploy-assets:
 	ASSETS_BUCKET=$$(aws cloudformation describe-stacks  \
 		--stack-name 'rdok-local-aws-sam-laravel' \
 		--query 'Stacks[0].Outputs[?OutputKey==`AssetsBucketARN`].OutputValue' \
