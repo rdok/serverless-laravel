@@ -5,7 +5,7 @@ Resources:
   Secrets:
     Type: "AWS::SecretsManager::Secret"
     Properties:
-      Name: !Join ["-", [!Ref "AWS::StackName", "secrets"]]
+      Name: !Join ["-", [!Ref AWS::StackName, "secrets"]]
       GenerateSecretString:
         PasswordLength: 30
         ExcludeCharacters: '"@/\'
@@ -31,3 +31,8 @@ Resources:
       SecretId: !Ref Secrets
       TargetId: !Ref Aurora
       TargetType: AWS::RDS::DBCluster
+Outputs:
+  DBHost:
+    Value: !GetAtt Aurora.Endpoint.Address
+  SecretsARN:
+    Value: !Ref Secrets
