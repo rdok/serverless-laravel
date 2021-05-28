@@ -6,6 +6,8 @@
  
 Simply git clone, add your AWS Credentials and deploy away using GitHub actions.
 
+![alt text][design]
+
 ## Infrastructure as code 
 > The following are fully automated through AWS infrastructure.
 - Subdomain & Certificate
@@ -21,8 +23,6 @@ Simply git clone, add your AWS Credentials and deploy away using GitHub actions.
 - Convert development `Makefile` to GitHub CI/CD actions, `test` & `prod` environments.
 
 Includes CI/CD using [GitHub Actions][ci_cd].
-
-![alt text][design]
 
 ## Develop
 `make`
