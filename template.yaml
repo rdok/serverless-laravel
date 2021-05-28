@@ -13,8 +13,18 @@ Parameters:
   WildcardCertificateARN:
     Type: String
   Route53HostedZoneId:
-    Type: String
+    Type: AWS::Route53::HostedZone::Id
     Description: 'The hosted zone ID which the base domain resides.'
+  DbVpcId:
+    Type: AWS::EC2::VPC::Id
+  DbSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+  DbSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+  DbHost:
+    Type: String
+  DbSecretsARN:
+    Type: String
 Resources:
   Laravel:
     Type: AWS::Serverless::Function
@@ -34,17 +44,38 @@ Resources:
           MIX_ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
           ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
           LOG_CHANNEL: stderr
+          DB_HOST: !Ref DbHost
+          DB_USERNAME: !Join ['', ['{{resolve:secretsmanager:', !Ref DbSecretsARN, ':SecretString:username}}' ]]
+          DB_PASSWORD: !Join ['', ['{{resolve:secretsmanager:', !Ref DbSecretsARN, ':SecretString:password}}' ]]
+      VpcConfig:
+        SecurityGroupIds: [!Ref SecurityGroup]
+        SubnetIds: !Ref DbSubnetIds
       Events:
         Root:
           Type: HttpApi
-          Properties:
-            Path: /
-            Method: ANY
+          Properties: {Path: /, Method: ANY}
         Proxy:
           Type: HttpApi
-          Properties:
-            Path: /{proxy+}
-            Method: ANY
+          Properties: {Path: '/{proxy+}', Method: ANY}
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Join [ '-', [ !Ref AWS::StackName, 'SecurityGroup' ] ]
+      GroupDescription: 'The security group for the Laravel Lambda.'
+      VpcId: !Ref DbVpcId
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+  AuthoriseDBAccess:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      SourceSecurityGroupId: !GetAtt SecurityGroup.GroupId
+      GroupId: !Ref DbSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 3306
+      ToPort: 3306
   Assets:
     Type: AWS::S3::Bucket
   AssetsBucketPolicy:
@@ -94,11 +125,8 @@ Resources:
             QueryString: true
             Cookies:
               Forward: all
-            Headers: # Do not forward `Host` as it messes up the API Gateway
-              - 'Accept'
-              - 'Accept-Language'
-              - 'Origin'
-              - 'Referer'
+            # Do not forward `Host` as it messes up the API Gateway
+            Headers: ['Accept', 'Accept-Language', 'Origin', 'Referer']
           ViewerProtocolPolicy: redirect-to-https
         CacheBehaviors:
           - PathPattern: 'assets/*'
@@ -107,8 +135,7 @@ Resources:
             ViewerProtocolPolicy: redirect-to-https
             ForwardedValues: # No need for all that with assets
               QueryString: 'false'
-              Cookies:
-                Forward: none
+              Cookies: {Forward: none}
             Compress: true
   CDNIdentity:
     Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
