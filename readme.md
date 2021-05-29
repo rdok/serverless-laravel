@@ -8,12 +8,16 @@ This is a ready for production, implementation of [The serverless LAMP stack par
 
 Simply clone, add AWS Credentials and deploy away using GitHub actions.
 
-See STORY_LINK_HERE for description of the highlights.
 
+### Requirements
+An existing domain & wild card certificate. STORY_LINK_HERE documents their need.
+
+### Develop
+`make`
+
+## Infrastructure
 ![alt text][infrastructure]
 
-## Develop
-`make`
 
 [bref]: https://bref.sh/
 [ci_cd]: https://github.com/rdok/serverless-laravel/actions
