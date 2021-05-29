@@ -15,16 +15,6 @@ Parameters:
   Route53HostedZoneId:
     Type: AWS::Route53::HostedZone::Id
     Description: 'The hosted zone ID which the base domain resides.'
-  DbVpcId:
-    Type: AWS::EC2::VPC::Id
-  DbSubnetIds:
-    Type: List<AWS::EC2::Subnet::Id>
-  DbSecurityGroupId:
-    Type: AWS::EC2::SecurityGroup::Id
-  DbHost:
-    Type: String
-  DbSecretsARN:
-    Type: String
 Resources:
   Laravel:
     Type: AWS::Serverless::Function
@@ -44,12 +34,6 @@ Resources:
           MIX_ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
           ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
           LOG_CHANNEL: stderr
-          DB_HOST: !Ref DbHost
-          DB_USERNAME: !Join ['', ['{{resolve:secretsmanager:', !Ref DbSecretsARN, ':SecretString:username}}' ]]
-          DB_PASSWORD: !Join ['', ['{{resolve:secretsmanager:', !Ref DbSecretsARN, ':SecretString:password}}' ]]
-      VpcConfig:
-        SecurityGroupIds: [!Ref SecurityGroup]
-        SubnetIds: !Ref DbSubnetIds
       Events:
         Root:
           Type: HttpApi
@@ -57,25 +41,6 @@ Resources:
         Proxy:
           Type: HttpApi
           Properties: {Path: '/{proxy+}', Method: ANY}
-  SecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupName: !Join [ '-', [ !Ref AWS::StackName, 'SecurityGroup' ] ]
-      GroupDescription: 'The security group for the Laravel Lambda.'
-      VpcId: !Ref DbVpcId
-      SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
-          CidrIp: 0.0.0.0/0
-  AuthoriseDBAccess:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      SourceSecurityGroupId: !GetAtt SecurityGroup.GroupId
-      GroupId: !Ref DbSecurityGroupId
-      IpProtocol: tcp
-      FromPort: 3306
-      ToPort: 3306
   Assets:
     Type: AWS::S3::Bucket
   AssetsBucketPolicy:
