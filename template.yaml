@@ -47,16 +47,27 @@ Resources:
           DB_HOST: !Ref DbHost
           DB_USERNAME: !Join ['', ['{{resolve:secretsmanager:', !Ref DbSecretsARN, ':SecretString:username}}' ]]
           DB_PASSWORD: !Join ['', ['{{resolve:secretsmanager:', !Ref DbSecretsARN, ':SecretString:password}}' ]]
+          SESSION_DRIVER: 'database'
+  Artisan:
+    Type: AWS::Serverless::Function
+    Properties:
+      Tracing: Active
+      MemorySize: 1024
+      CodeUri: laravel
+      Layers: ["arn:aws:lambda:eu-west-1:209497400698:layer:console:34"]
+      Handler: artisan
+      Runtime: provided.al2
+      Environment:
+        Variables:
+          APP_STORAGE: /tmp
+          FILESYSTEM_DRIVER: s3
+          LOG_CHANNEL: stderr
+          DB_HOST: !Ref DbHost
+          DB_USERNAME: !Join ['', ['{{resolve:secretsmanager:', !Ref DbSecretsARN, ':SecretString:username}}' ]]
+          DB_PASSWORD: !Join ['', ['{{resolve:secretsmanager:', !Ref DbSecretsARN, ':SecretString:password}}' ]]
       VpcConfig:
         SecurityGroupIds: [!Ref SecurityGroup]
         SubnetIds: !Ref DbSubnetIds
-      Events:
-        Root:
-          Type: HttpApi
-          Properties: {Path: /, Method: ANY}
-        Proxy:
-          Type: HttpApi
-          Properties: {Path: '/{proxy+}', Method: ANY}
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
