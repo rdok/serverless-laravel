@@ -7,6 +7,7 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID: ${{ secrets.BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID }}
   BASE_DOMAIN_WILD_CARD_CERTIFICATE_ARN: ${{ secrets.BASE_DOMAIN_WILD_CARD_CERTIFICATE_ARN }}
+  AWS_DEFAULT_REGION: 'eu-west-1' # Required to solve issue with Python AWS https://github.com/aws/aws-cli/issues/5262
 on:
   push:
     branches: [ main ]
