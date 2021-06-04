@@ -3,10 +3,10 @@ env:
   ORG: rdokos
   NAME: serverless-laravel
   BASE_DOMAIN_NAME: rdok.co.uk
-  AWS_DEFAULT_REGION: us-east-1
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID: ${{ secrets.BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID }}
+  BASE_DOMAIN_WILD_CARD_CERTIFICATE_ARN: ${{ secrets.BASE_DOMAIN_WILD_CARD_CERTIFICATE_ARN }}
 on:
   push:
     branches: [ main ]
@@ -37,15 +37,16 @@ jobs:
             exit 1
           fi
 
-          echo ::set-output name=stack-name::"${ORG}-${ENVIRONMENT}-${NAME}"
+          echo ::set-output name=stack-laravel-name::"${ORG}-${ENVIRONMENT}-${NAME}"
           echo ::set-output name=stack-certificate-name::"${ORG}-${ENVIRONMENT}-${NAME}-certificate"
-          echo ::set-output name=cicd-bucket::"${ORG}-${ENVIRONMENT}-cicd-${AWS_DEFAULT_REGION}"
+          echo ::set-output name=cicd-bucket-certificate::"${ORG}-${ENVIRONMENT}-cicd-us-east-1"
+          echo ::set-output name=cicd-bucket-laravel::"${ORG}-${ENVIRONMENT}-cicd-eu-west-1"
       - name: Deploy domain certificate
         run: |
           sam deploy \
             --template-file template-certificate.yml \
             --region "us-east-1" \
-            --s3-bucket "${{ steps.env.outputs.cicd-bucket }}" \
+            --s3-bucket "${{ steps.env.outputs.cicd-bucket-certificate }}" \
             --s3-prefix "${NAME}" \
             --stack-name "${{ steps.env.outputs.stack-certificate-name }}" \
             --capabilities CAPABILITY_IAM \
@@ -54,13 +55,25 @@ jobs:
             --parameter-overrides \
               DomainName="${{ steps.env.outputs.domain-name }}" \
               BaseDomainRoute53HostedZoneId="${BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID}"
-#      - name: Build
-#        run: make vendor
-#      - name: Deploy
-#        run: |
-#          sam deploy \
-#            --s3-bucket "${{ steps.env.outputs.cicd-bucket }}" \
-#            --s3-prefix "${NAME}" \
-#            --stack-name "${{ steps.env.outputs.stack-name }}" \
-#            --capabilities CAPABILITY_IAM \
-#            --no-fail-on-empty-changeset
+      - name: Build Laravel
+        run: make composer-prod
+      - name: Deploy Laravel
+        run: |
+          CERTIFICATE_ARN=$$(aws cloudformation describe-stacks  \
+            --region us-east-1 \
+            --stack-name 'rdok-local-serverless-laravel-certificate' \
+            --query 'Stacks[0].Outputs[?OutputKey==`CertificateARN`].OutputValue' \
+            --output text)
+          sam deploy \
+            --region "eu-west-1" \
+            --s3-bucket "${{ steps.env.outputs.cicd-bucket-laravel }}" \
+            --s3-prefix "${NAME}" \
+            --stack-name "${{ steps.env.outputs.stack-laravel-name }}" \
+            --capabilities CAPABILITY_IAM \
+            --no-fail-on-empty-changeset \
+            --no-confirm-changeset \
+            --parameter-overrides \
+              CertificateARN="${CERTIFICATE_ARN}" \
+              DomainName="${{ steps.env.outputs.domain-name }}" \
+              WildcardCertificateARN="${BASE_DOMAIN_WILD_CARD_CERTIFICATE_ARN}" \
+              BaseDomainRoute53HostedZoneId="${BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID}"
