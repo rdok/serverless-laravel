@@ -52,7 +52,7 @@ jobs:
             --no-fail-on-empty-changeset \
             --parameter-overrides \
               DomainName="${{ steps.env.outputs.domain-name }}" \
-              Route53HostedZoneId="${ROUTE_53_HOSTED_ZONE_ID}
+              Route53HostedZoneId="${ROUTE_53_HOSTED_ZONE_ID}"
 #      - name: Build
 #        run: make vendor
 #      - name: Deploy
