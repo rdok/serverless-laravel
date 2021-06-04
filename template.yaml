@@ -107,8 +107,8 @@ Resources:
     Properties:
       CloudFrontOriginAccessIdentityConfig:
         Comment: !Sub "${DomainName}"
-#Outputs:
-#  Domain:
-#    Value: !Sub "https://${DomainName}"
-#  AssetsBucketARN:
-#    Value: !Ref Assets
+Outputs:
+  Domain:
+    Value: !Sub "https://${DomainName}"
+  AssetsBucketARN:
+    Value: !Ref Assets
