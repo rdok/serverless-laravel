@@ -66,4 +66,4 @@ deploy-database:
 	sam deploy --config-env database --template template-aurora.yml
 
 ${LARAVEL_DIR}/vendor:
-	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
+	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
