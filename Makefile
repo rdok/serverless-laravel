@@ -56,7 +56,7 @@ npm-cleanup:
 	cd $${LARAVEL_DIR} && rm -rf node_modules
 
 composer-prod:
-	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c " \
+	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c " \
 		composer install --optimize-autoloader --no-dev && \
 		php artisan route:cache && \
 		php artisan view:cache"
