@@ -46,7 +46,7 @@ jobs:
             --template-file template-certificate.yml \
             --region "us-east-1" \
             --s3-bucket "${{ steps.env.outputs.cicd-bucket }}" \
-            --s3-prefix "${{ steps.env.outputs.name }}" \
+            --s3-prefix "${NAME}" \
             --stack-name "${{ steps.env.outputs.stack-certificate-name }}" \
             --capabilities CAPABILITY_IAM \
             --no-fail-on-empty-changeset \
