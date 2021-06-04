@@ -50,7 +50,7 @@ npm-prod: ${LARAVEL_DIR}/vendor/bin/sail
 	make npm-cleanup
 
 ${LARAVEL_DIR}/vendor/bin/sail:
-	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
+	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
 
 npm-cleanup:
 	cd $${LARAVEL_DIR} && rm -rf node_modules

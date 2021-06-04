@@ -78,7 +78,9 @@ jobs:
               WildcardCertificateARN="${BASE_DOMAIN_WILD_CARD_CERTIFICATE_ARN}" \
               BaseDomainRoute53HostedZoneId="${BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID}"
       - name: Build Static
-        run: make npm-prod
+        run: |
+          npm install
+          npm run prod
       - name: Deploy Static
         run: |
           ASSETS_BUCKET=$(aws cloudformation describe-stacks  \
