@@ -16,31 +16,31 @@ Parameters:
     Type: AWS::Route53::HostedZone::Id
     Description: 'The hosted zone ID which the base domain resides.'
 Resources:
-#  Laravel:
-#    Type: AWS::Serverless::Function
-#    Properties:
-#      Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
-#      Tracing: Active
-#      MemorySize: 1024
-#      CodeUri: laravel
-#      Layers: ["arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:9"]
-#      Handler: public/index.php
-#      Runtime: provided.al2
-#      Environment:
-#        Variables:
-#          APP_STORAGE: /tmp
-#          AWS_PUBLIC_BUCKET: !Ref Assets
-#          FILESYSTEM_DRIVER: s3
-#          MIX_ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
-#          ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
-#          LOG_CHANNEL: stderr
-#      Events:
-#        Root:
-#          Type: HttpApi
-#          Properties: {Path: /, Method: ANY}
-#        Proxy:
-#          Type: HttpApi
-#          Properties: {Path: '/{proxy+}', Method: ANY}
+  Laravel:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+      Tracing: Active
+      MemorySize: 1024
+      CodeUri: laravel
+      Layers: ["arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:9"]
+      Handler: public/index.php
+      Runtime: provided.al2
+      Environment:
+        Variables:
+          APP_STORAGE: /tmp
+          AWS_PUBLIC_BUCKET: !Ref Assets
+          FILESYSTEM_DRIVER: s3
+          MIX_ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
+          ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
+          LOG_CHANNEL: stderr
+      Events:
+        Root:
+          Type: HttpApi
+          Properties: {Path: /, Method: ANY}
+        Proxy:
+          Type: HttpApi
+          Properties: {Path: '/{proxy+}', Method: ANY}
   Assets:
     Type: AWS::S3::Bucket
   AssetsBucketPolicy:
