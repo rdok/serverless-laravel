@@ -59,9 +59,9 @@ jobs:
         run: make composer-prod
       - name: Deploy Laravel
         run: |
-          CERTIFICATE_ARN=$$(aws cloudformation describe-stacks  \
-            --region us-east-1 \
-            --stack-name 'rdok-local-serverless-laravel-certificate' \
+          CERTIFICATE_ARN=$(aws cloudformation describe-stacks  \
+            --region 'us-east-1' \
+            --stack-name "${{ steps.env.outputs.stack-certificate-name }}" \
             --query 'Stacks[0].Outputs[?OutputKey==`CertificateARN`].OutputValue' \
             --output text)
           sam deploy \
