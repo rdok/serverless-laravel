@@ -43,7 +43,9 @@ jobs:
           echo ::set-output name=cicd-bucket-certificate::"${ORG}-${ENVIRONMENT}-cicd-us-east-1"
           echo ::set-output name=cicd-bucket-laravel::"${ORG}-${ENVIRONMENT}-cicd-eu-west-1"
       - name: Build Laravel
-        run: make composer-prod
+        run: |
+          make config-clear
+          make composer-prod
       - name: Deploy domain certificate
         run: |
           sam deploy \
