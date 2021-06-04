@@ -110,5 +110,5 @@ Resources:
 Outputs:
   Domain:
     Value: !Sub "https://${DomainName}"
-  AssetsBucketARN:
+  AssetsBucketName:
     Value: !Ref Assets

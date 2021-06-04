@@ -85,7 +85,8 @@ jobs:
       - name: Deploy Static
         run: |
           ASSETS_BUCKET=$(aws cloudformation describe-stacks  \
+            --region "eu-west-1" \
             --stack-name "${{ steps.env.outputs.stack-laravel-name }}" \
-            --query 'Stacks[0].Outputs[?OutputKey==`AssetsBucketARN`].OutputValue' \
+            --query 'Stacks[0].Outputs[?OutputKey==`AssetsBucketName`].OutputValue' \
             --output text)
           aws s3 sync ./laravel/public s3://${ASSETS_BUCKET}/assets --delete
