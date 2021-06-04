@@ -6,7 +6,7 @@ env:
   AWS_DEFAULT_REGION: us-east-1
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  ROUTE_53_HOSTED_ZONE_ID: ${{ secrets.ROUTE_53_HOSTED_ZONE_ID }}
+  BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID: ${{ secrets.BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID }}
 on:
   push:
     branches: [ main ]
@@ -52,7 +52,7 @@ jobs:
             --no-fail-on-empty-changeset \
             --parameter-overrides \
               DomainName="${{ steps.env.outputs.domain-name }}" \
-              Route53HostedZoneId="${ROUTE_53_HOSTED_ZONE_ID}"
+              BaseDomainRoute53HostedZoneId="${BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID}"
 #      - name: Build
 #        run: make vendor
 #      - name: Deploy

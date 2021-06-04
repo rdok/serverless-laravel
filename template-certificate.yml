@@ -9,7 +9,7 @@ Description: >
 Parameters:
   DomainName:
     Type: String
-  Route53HostedZoneId:
+  BaseDomainRoute53HostedZoneId:
     Type: String
     Description: 'The hosted zone ID which the base domain resides.'
 Resources:
@@ -19,7 +19,7 @@ Resources:
       ValidationMethod: DNS
       DomainValidationOptions:
         - DomainName: !Ref DomainName
-          HostedZoneId: !Ref Route53HostedZoneId
+          HostedZoneId: !Ref BaseDomainRoute53HostedZoneId
       DomainName: !Ref DomainName
 Outputs:
   CertificateARN:
