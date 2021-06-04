@@ -17,7 +17,7 @@ shell:
 	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 bash
 
 config-clear: ${LARAVEL_DIR}/vendor
-	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app \
+	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app \
 		composer:2.0 bash -c 'php artisan config:clear'
 
 deploy-laravel: config-clear npm-cleanup composer-prod
