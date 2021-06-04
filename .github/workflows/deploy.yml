@@ -50,6 +50,7 @@ jobs:
             --stack-name "${{ steps.env.outputs.stack-certificate-name }}" \
             --capabilities CAPABILITY_IAM \
             --no-fail-on-empty-changeset \
+            --confirm-changeset \
             --parameter-overrides \
               DomainName="${{ steps.env.outputs.domain-name }}" \
               BaseDomainRoute53HostedZoneId="${BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID}"
