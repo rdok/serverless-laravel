@@ -64,44 +64,44 @@ Resources:
 #      AliasTarget:
 #        HostedZoneId: Z2FDTNDATAQYW2
 #        DNSName: !GetAtt CDN.DomainName
-#  CDN:
-#    Type: AWS::CloudFront::Distribution
-#    Properties:
-#      DistributionConfig:
-#        ViewerCertificate:
-#          AcmCertificateArn: !Ref WildcardCertificateARN
-#          MinimumProtocolVersion: TLSv1
-#          SslSupportMethod: sni-only
-#        Enabled: true
-#        Aliases: [!Ref DomainName]
-#        Origins:
-#          - Id: LaravelOriginId
-#            DomainName: !Join [ '.', [ !Ref ServerlessHttpApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com' ] ]
-#            CustomOriginConfig:
-#              OriginProtocolPolicy: 'https-only'
-#          - Id: Assets
-#            DomainName: !GetAtt Assets.RegionalDomainName
-#            S3OriginConfig:
-#              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CDNIdentity}"
-#        DefaultCacheBehavior:
-#          AllowedMethods: [ GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE ]
-#          TargetOriginId: LaravelOriginId
-#          ForwardedValues:
-#            QueryString: true
-#            Cookies:
-#              Forward: all
-#            # Do not forward `Host` as it messes up the API Gateway
-#            Headers: ['Accept', 'Accept-Language', 'Origin', 'Referer']
-#          ViewerProtocolPolicy: redirect-to-https
-#        CacheBehaviors:
-#          - PathPattern: 'assets/*'
-#            TargetOriginId: Assets
-#            AllowedMethods: [ GET, HEAD ]
-#            ViewerProtocolPolicy: redirect-to-https
-#            ForwardedValues: # No need for all that with assets
-#              QueryString: 'false'
-#              Cookies: {Forward: none}
-#            Compress: true
+  CDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        ViewerCertificate:
+          AcmCertificateArn: !Ref WildcardCertificateARN
+          MinimumProtocolVersion: TLSv1
+          SslSupportMethod: sni-only
+        Enabled: true
+        Aliases: [!Ref DomainName]
+        Origins:
+          - Id: LaravelOriginId
+            DomainName: !Join [ '.', [ !Ref ServerlessHttpApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com' ] ]
+            CustomOriginConfig:
+              OriginProtocolPolicy: 'https-only'
+          - Id: Assets
+            DomainName: !GetAtt Assets.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CDNIdentity}"
+        DefaultCacheBehavior:
+          AllowedMethods: [ GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE ]
+          TargetOriginId: LaravelOriginId
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: all
+            # Do not forward `Host` as it messes up the API Gateway
+            Headers: ['Accept', 'Accept-Language', 'Origin', 'Referer']
+          ViewerProtocolPolicy: redirect-to-https
+        CacheBehaviors:
+          - PathPattern: 'assets/*'
+            TargetOriginId: Assets
+            AllowedMethods: [ GET, HEAD ]
+            ViewerProtocolPolicy: redirect-to-https
+            ForwardedValues: # No need for all that with assets
+              QueryString: 'false'
+              Cookies: {Forward: none}
+            Compress: true
   CDNIdentity:
     Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
     Properties:
