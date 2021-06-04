@@ -1,6 +1,6 @@
 name: Deploy
 env:
-  ORG: rdok
+  ORG: rdokos
   NAME: serverless-laravel
   BASE_DOMAIN_NAME: rdok.co.uk
   AWS_DEFAULT_REGION: eu-west-1
@@ -43,6 +43,7 @@ jobs:
       - name: Deploy domain certificate
         run: |
           sam deploy \
+            --template-file template-certificate.yml \
             --region "us-east-1" \
             --s3-bucket "${{ steps.env.outputs.cicd-bucket }}" \
             --s3-prefix "${{ steps.env.outputs.name }}" \
