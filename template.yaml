@@ -16,99 +16,99 @@ Parameters:
     Type: AWS::Route53::HostedZone::Id
     Description: 'The hosted zone ID which the base domain resides.'
 Resources:
-  Laravel:
-    Type: AWS::Serverless::Function
-    Properties:
-      Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
-      Tracing: Active
-      MemorySize: 1024
-      CodeUri: laravel
-      Layers: ["arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:9"]
-      Handler: public/index.php
-      Runtime: provided.al2
-      Environment:
-        Variables:
-          APP_STORAGE: /tmp
-          AWS_PUBLIC_BUCKET: !Ref Assets
-          FILESYSTEM_DRIVER: s3
-          MIX_ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
-          ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
-          LOG_CHANNEL: stderr
-      Events:
-        Root:
-          Type: HttpApi
-          Properties: {Path: /, Method: ANY}
-        Proxy:
-          Type: HttpApi
-          Properties: {Path: '/{proxy+}', Method: ANY}
+#  Laravel:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+#      Tracing: Active
+#      MemorySize: 1024
+#      CodeUri: laravel
+#      Layers: ["arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:9"]
+#      Handler: public/index.php
+#      Runtime: provided.al2
+#      Environment:
+#        Variables:
+#          APP_STORAGE: /tmp
+#          AWS_PUBLIC_BUCKET: !Ref Assets
+#          FILESYSTEM_DRIVER: s3
+#          MIX_ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
+#          ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
+#          LOG_CHANNEL: stderr
+#      Events:
+#        Root:
+#          Type: HttpApi
+#          Properties: {Path: /, Method: ANY}
+#        Proxy:
+#          Type: HttpApi
+#          Properties: {Path: '/{proxy+}', Method: ANY}
   Assets:
     Type: AWS::S3::Bucket
-  AssetsBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket:
-        Ref: Assets
-      PolicyDocument:
-        Statement:
-          Effect: Allow
-          Action: s3:GetObject
-          Principal:
-            CanonicalUser: !GetAtt CDNIdentity.S3CanonicalUserId
-          Resource: !Sub "${Assets.Arn}/*"
-  Domain:
-    Type: AWS::Route53::RecordSet
-    Properties:
-      HostedZoneId: !Ref BaseDomainRoute53HostedZoneId
-      Name: !Ref DomainName
-      Type: A
-      AliasTarget:
-        HostedZoneId: Z2FDTNDATAQYW2
-        DNSName: !GetAtt CDN.DomainName
-  CDN:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig:
-        ViewerCertificate:
-          AcmCertificateArn: !Ref WildcardCertificateARN
-          MinimumProtocolVersion: TLSv1
-          SslSupportMethod: sni-only
-        Enabled: true
-        Aliases: [!Ref DomainName]
-        Origins:
-          - Id: LaravelOriginId
-            DomainName: !Join [ '.', [ !Ref ServerlessHttpApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com' ] ]
-            CustomOriginConfig:
-              OriginProtocolPolicy: 'https-only'
-          - Id: Assets
-            DomainName: !GetAtt Assets.RegionalDomainName
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CDNIdentity}"
-        DefaultCacheBehavior:
-          AllowedMethods: [ GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE ]
-          TargetOriginId: LaravelOriginId
-          ForwardedValues:
-            QueryString: true
-            Cookies:
-              Forward: all
-            # Do not forward `Host` as it messes up the API Gateway
-            Headers: ['Accept', 'Accept-Language', 'Origin', 'Referer']
-          ViewerProtocolPolicy: redirect-to-https
-        CacheBehaviors:
-          - PathPattern: 'assets/*'
-            TargetOriginId: Assets
-            AllowedMethods: [ GET, HEAD ]
-            ViewerProtocolPolicy: redirect-to-https
-            ForwardedValues: # No need for all that with assets
-              QueryString: 'false'
-              Cookies: {Forward: none}
-            Compress: true
-  CDNIdentity:
-    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub "${DomainName}"
-Outputs:
-  Domain:
-    Value: !Sub "https://${DomainName}"
-  AssetsBucketARN:
-    Value: !Ref Assets
+#  AssetsBucketPolicy:
+#    Type: AWS::S3::BucketPolicy
+#    Properties:
+#      Bucket:
+#        Ref: Assets
+#      PolicyDocument:
+#        Statement:
+#          Effect: Allow
+#          Action: s3:GetObject
+#          Principal:
+#            CanonicalUser: !GetAtt CDNIdentity.S3CanonicalUserId
+#          Resource: !Sub "${Assets.Arn}/*"
+#  Domain:
+#    Type: AWS::Route53::RecordSet
+#    Properties:
+#      HostedZoneId: !Ref BaseDomainRoute53HostedZoneId
+#      Name: !Ref DomainName
+#      Type: A
+#      AliasTarget:
+#        HostedZoneId: Z2FDTNDATAQYW2
+#        DNSName: !GetAtt CDN.DomainName
+#  CDN:
+#    Type: AWS::CloudFront::Distribution
+#    Properties:
+#      DistributionConfig:
+#        ViewerCertificate:
+#          AcmCertificateArn: !Ref WildcardCertificateARN
+#          MinimumProtocolVersion: TLSv1
+#          SslSupportMethod: sni-only
+#        Enabled: true
+#        Aliases: [!Ref DomainName]
+#        Origins:
+#          - Id: LaravelOriginId
+#            DomainName: !Join [ '.', [ !Ref ServerlessHttpApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com' ] ]
+#            CustomOriginConfig:
+#              OriginProtocolPolicy: 'https-only'
+#          - Id: Assets
+#            DomainName: !GetAtt Assets.RegionalDomainName
+#            S3OriginConfig:
+#              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CDNIdentity}"
+#        DefaultCacheBehavior:
+#          AllowedMethods: [ GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE ]
+#          TargetOriginId: LaravelOriginId
+#          ForwardedValues:
+#            QueryString: true
+#            Cookies:
+#              Forward: all
+#            # Do not forward `Host` as it messes up the API Gateway
+#            Headers: ['Accept', 'Accept-Language', 'Origin', 'Referer']
+#          ViewerProtocolPolicy: redirect-to-https
+#        CacheBehaviors:
+#          - PathPattern: 'assets/*'
+#            TargetOriginId: Assets
+#            AllowedMethods: [ GET, HEAD ]
+#            ViewerProtocolPolicy: redirect-to-https
+#            ForwardedValues: # No need for all that with assets
+#              QueryString: 'false'
+#              Cookies: {Forward: none}
+#            Compress: true
+#  CDNIdentity:
+#    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+#    Properties:
+#      CloudFrontOriginAccessIdentityConfig:
+#        Comment: !Sub "${DomainName}"
+#Outputs:
+#  Domain:
+#    Value: !Sub "https://${DomainName}"
+#  AssetsBucketARN:
+#    Value: !Ref Assets
