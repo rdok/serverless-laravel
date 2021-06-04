@@ -79,6 +79,7 @@ jobs:
               BaseDomainRoute53HostedZoneId="${BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID}"
       - name: Build Static
         run: |
+          cd laravel
           npm install
           npm run prod
       - name: Deploy Static
