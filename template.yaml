@@ -12,7 +12,7 @@ Parameters:
     Type: String
   WildcardCertificateARN:
     Type: String
-  Route53HostedZoneId:
+  BaseDomainRoute53HostedZoneId:
     Type: AWS::Route53::HostedZone::Id
     Description: 'The hosted zone ID which the base domain resides.'
 Resources:
@@ -58,7 +58,7 @@ Resources:
   Domain:
     Type: AWS::Route53::RecordSet
     Properties:
-      HostedZoneId: !Ref Route53HostedZoneId
+      HostedZoneId: !Ref BaseDomainRoute53HostedZoneId
       Name: !Ref DomainName
       Type: A
       AliasTarget:
