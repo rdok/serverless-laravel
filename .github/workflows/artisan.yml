@@ -12,6 +12,7 @@ on:
       environment:
         required: true
         description: "Allowed values: prod, test"
+        default: test
       command:
         required: true
         description: "The artisan command to run. E.g. inspire"
