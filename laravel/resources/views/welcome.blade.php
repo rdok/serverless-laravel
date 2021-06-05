@@ -13,7 +13,7 @@
         <h1>Serverless Laravel</h1>
     </header>
 
-    <img src="{{ asset('img/design.png') }}" alt="Infrastructure Design for AWS SAM Laravel">
+    <img src="{{ asset('img/infrastructure.webp') }}" alt="Infrastructure Design for AWS SAM Laravel">
         <script src="{{ mix('/js/app.js') }}"></script>
     </body>
 </html>
