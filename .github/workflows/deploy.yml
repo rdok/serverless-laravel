@@ -47,6 +47,11 @@ jobs:
         run: |
           make config-clear
           make composer-prod
+      - name: Build Static
+        run: |
+          cd laravel
+          npm install
+          npm run prod
       - name: Deploy domain certificate
         run: |
           sam deploy \
@@ -82,11 +87,6 @@ jobs:
               DomainName="${{ steps.env.outputs.domain-name }}" \
               WildcardCertificateARN="${BASE_DOMAIN_WILD_CARD_CERTIFICATE_ARN}" \
               BaseDomainRoute53HostedZoneId="${BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID}"
-      - name: Build Static
-        run: |
-          cd laravel
-          npm install
-          npm run prod
       - name: Deploy Static
         run: |
           ASSETS_BUCKET=$(aws cloudformation describe-stacks  \
