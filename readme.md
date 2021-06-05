@@ -5,10 +5,6 @@
 [![test-site][test_site_badge]][test_site]
 [![prod-site][prod_site_badge]][prod_site]
 
-Simply clone, add AWS Credentials, update stackname and deploy `test` & `prod` environments using GitHub actions.
-
-STORY_LINK_HERE documents the highlights. 
-
 #### AWS resource requirements
 An existing base domain & wild card certificate.
 
