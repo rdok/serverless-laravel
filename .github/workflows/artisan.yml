@@ -15,7 +15,7 @@ on:
         default: test
       command:
         required: true
-        description: "The artisan command to run. E.g. inspire"
+        description: "The artisan command to run."
         default: inspire
 jobs:
   build:
