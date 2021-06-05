@@ -31,4 +31,4 @@ These required policies have been automated using [rdok/cicd-iam-terraform](http
 [prod_site]: https://serverless-laravel.rdok.co.uk/
 [test_site_badge]: https://img.shields.io/badge/Test-green?style=flat-square&logo=amazon-aws
 [test_site]: https://serverless-laravel-test.rdok.co.uk/
-[infrastructure]: ./infrastructure.webp
+[infrastructure]: ./infrastructure.jpg
