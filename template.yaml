@@ -30,13 +30,15 @@ Resources:
       Runtime: provided.al2
       Environment:
         Variables:
+          APP_KEY: !Ref AppKey
           APP_STORAGE: /tmp
           AWS_PUBLIC_BUCKET: !Ref Assets
-          FILESYSTEM_DRIVER: s3
           MIX_ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
           ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
           LOG_CHANNEL: stderr
-          APP_KEY: !Ref AppKey
+          FILESYSTEM_DRIVER: s3
+          AWS_BUCKET: !Ref Storage
+          AWS_DEFAULT_REGION: !Ref "AWS::Region"
       Events:
         Root:
           Type: HttpApi
@@ -44,6 +46,9 @@ Resources:
         Proxy:
           Type: HttpApi
           Properties: {Path: '/{proxy+}', Method: ANY}
+      Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref Storage
   Assets:
     Type: AWS::S3::Bucket
   AssetsBucketPolicy:
@@ -58,6 +63,8 @@ Resources:
           Principal:
             CanonicalUser: !GetAtt CDNIdentity.S3CanonicalUserId
           Resource: !Sub "${Assets.Arn}/*"
+  Storage:
+    Type: AWS::S3::Bucket
   Domain:
     Type: AWS::Route53::RecordSet
     Properties:
