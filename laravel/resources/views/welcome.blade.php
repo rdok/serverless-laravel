@@ -13,7 +13,9 @@
     <h1>Serverless Laravel</h1>
 </header>
 
-<img src="{{ asset('img/infrastructure.webp') }}" alt="Infrastructure Design for AWS SAM Laravel">
+<img style="border: 1px solid #555;" src="{{ asset('img/infrastructure.jpg') }}" alt="Infrastructure Design for AWS SAM Laravel">
+
+<hr>
 
 <img
     src="data:image/jpg;base64,{!!  base64_encode(Storage::get('showcase-storage-retrieval.jpg')) !!}"
