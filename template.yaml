@@ -145,3 +145,5 @@ Outputs:
     Value: !Ref Assets
   StorageBucketName:
     Value: !Ref Storage
+  ArtisanLamdaName:
+    Value: !Ref Artisan
