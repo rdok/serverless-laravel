@@ -51,6 +51,6 @@ jobs:
             --function-name ${LAMBDA_NAME} \
             --payload '"${{ github.event.inputs.command }}"' \
               response.json
-      - name: Print lambda response
+      - name: Print artisan response
         run: cat response.json
 
