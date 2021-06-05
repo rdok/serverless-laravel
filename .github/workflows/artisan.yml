@@ -1,0 +1,54 @@
+name: Deploy
+env:
+  ORG: rdokos
+  NAME: serverless-laravel
+  BASE_DOMAIN_NAME: rdok.co.uk
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: 'eu-west-1' # Required to solve issue with Python AWS https://github.com/aws/aws-cli/issues/5262
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        description: "Allowed values: prod, test"
+      command:
+        required: true
+        description: "The artisan command to run. E.g. inspire"
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prepare environment variables
+        id: env
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+        run: |
+          [ "$ENVIRONMENT" = "" ] && ENVIRONMENT=test
+
+          if [ "$ENVIRONMENT" == "test" ]; then
+            echo ::set-output name=domain-name::"${NAME}-test.${BASE_DOMAIN_NAME}"
+          elif [ "$ENVIRONMENT" == "prod" ]; then
+            echo ::set-output name=domain-name::"${NAME}.${BASE_DOMAIN_NAME}"
+          else
+            printf '%s\n' "ENVIRONMENT is not in accepted range: test, prod." >&2
+            exit 1
+          fi
+
+          echo ::set-output name=stack-laravel-name::"${ORG}-${ENVIRONMENT}-${NAME}"
+      - name: Get artisan lambda name
+        run: |
+          LAMBDA_NAME=$(aws cloudformation describe-stacks  \
+            --region "eu-west-1" \
+            --stack-name "${{ steps.env.outputs.stack-laravel-name }}" \
+            --query 'Stacks[0].Outputs[?OutputKey==`ArtisanLambdaName`].OutputValue' \
+            --output text)
+          aws lambda invoke \
+            --cli-binary-format raw-in-base64-out \
+            --function-name ${LAMBDA_NAME} \
+            --payload '"${{ github.event.inputs.command }}"' \
+              response.json
+      - name: Print lambda response
+        run: cat response.json
+
