@@ -102,4 +102,4 @@ jobs:
             --stack-name "${{ steps.env.outputs.stack-laravel-name }}" \
             --query 'Stacks[0].Outputs[?OutputKey==`StorageBucketName`].OutputValue' \
             --output text)
-          aws s3 cp ${GITHUB_WORKSPACE}/laravel/storage/app/showcase-storage-retrieval.jpg s3://${STORAGE_BUCKET}/app
+          aws s3 cp ${GITHUB_WORKSPACE}/laravel/storage/app/showcase-storage-retrieval.jpg s3://${STORAGE_BUCKET}
