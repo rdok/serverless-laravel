@@ -16,7 +16,7 @@ on:
         required: true
         description: "The artisan command to run. E.g. inspire"
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
