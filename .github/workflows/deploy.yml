@@ -8,6 +8,7 @@ env:
   BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID: ${{ secrets.BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID }}
   BASE_DOMAIN_WILD_CARD_CERTIFICATE_ARN: ${{ secrets.BASE_DOMAIN_WILD_CARD_CERTIFICATE_ARN }}
   AWS_DEFAULT_REGION: 'eu-west-1' # Required to solve issue with Python AWS https://github.com/aws/aws-cli/issues/5262
+  APP_KEY: ${{ secrets.APP_KEY }} # Generate using `php artisan key:generate --show`
 on:
   push:
     branches: [ main ]
@@ -77,6 +78,7 @@ jobs:
             --no-confirm-changeset \
             --parameter-overrides \
               CertificateARN="${CERTIFICATE_ARN}" \
+              AppKey="${APP_KEY}" \
               DomainName="${{ steps.env.outputs.domain-name }}" \
               WildcardCertificateARN="${BASE_DOMAIN_WILD_CARD_CERTIFICATE_ARN}" \
               BaseDomainRoute53HostedZoneId="${BASE_DOMAIN_ROUTE_53_HOSTED_ZONE_ID}"

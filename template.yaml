@@ -12,6 +12,8 @@ Parameters:
     Type: String
   WildcardCertificateARN:
     Type: String
+  AppKey:
+    Type: String
   BaseDomainRoute53HostedZoneId:
     Type: AWS::Route53::HostedZone::Id
     Description: 'The hosted zone ID which the base domain resides.'
@@ -34,6 +36,7 @@ Resources:
           MIX_ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
           ASSET_URL: !Join [ '', [ 'https://', !Ref DomainName, '/assets' ] ]
           LOG_CHANNEL: stderr
+          APP_KEY: !Ref AppKey
       Events:
         Root:
           Type: HttpApi
