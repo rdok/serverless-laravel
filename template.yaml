@@ -55,7 +55,9 @@ Resources:
       Tracing: Active
       MemorySize: 1024
       CodeUri: laravel
-      Layers: ["arn:aws:lambda:eu-west-1:209497400698:layer:console:34"]
+      Layers:
+        - "arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:9"
+        - "arn:aws:lambda:eu-west-1:209497400698:layer:console:34"
       Handler: artisan
       Runtime: provided.al2
       Environment:
