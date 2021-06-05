@@ -58,9 +58,9 @@ npm-cleanup:
 composer-prod:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c " \
 		composer install --optimize-autoloader --no-dev && \
-		php artisan route:cache && \
 		php artisan view:cache"
 	# NOTE: config:cache is skipped due deployment breaking views path finding.
+# 		php artisan route:cache && \
 
 deploy-database:
 	sam deploy --config-env database --template template-aurora.yml
