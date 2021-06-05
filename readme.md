@@ -15,6 +15,11 @@ An existing base domain & wild card certificate.
 ## Infrastructure
 ![alt text][infrastructure]
 
+## CI/CD IAM Policies
+
+These required policies have been automated using [rdok/cicd-iam-terraform](https://github.com/rdok/cicd-iam-terraform/blob/acf4c6f084807f8b704cd63b0a757c822f4076cb/serverless-laravel.tf#L1);
+
+
 ### Develop
 `make start` to start local development. See `Makefile` for more.
 
@@ -23,7 +28,7 @@ An existing base domain & wild card certificate.
 [cd_prod_badge]: https://github.com/rdok/serverless-laravel/actions/workflows/deploy.yml/badge.svg?event=workflow_dispatch
 [cd_prod]: https://github.com/rdok/serverless-laravel/actions/workflows/deploy.yml
 [prod_site_badge]: https://img.shields.io/badge/prod-blue?style=flat-square&logo=amazon-aws
-[prod_site]: https://serverless-laravel-local.rdok.co.uk/
+[prod_site]: https://serverless-laravel.rdok.co.uk/
 [test_site_badge]: https://img.shields.io/badge/Test-green?style=flat-square&logo=amazon-aws
 [test_site]: https://serverless-laravel-test.rdok.co.uk/
 [infrastructure]: ./infrastructure.webp
