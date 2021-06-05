@@ -48,6 +48,26 @@ Resources:
       Policies:
         - S3FullAccessPolicy:
             BucketName: !Ref Storage
+  Artisan:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 300 # Artisan may handle long
+      Tracing: Active
+      MemorySize: 1024
+      CodeUri: laravel
+      Layers: ["arn:aws:lambda:eu-west-1:209497400698:layer:console:34"]
+      Handler: artisan
+      Runtime: provided.al2
+      Environment:
+        Variables:
+          APP_KEY: !Ref AppKey
+          APP_STORAGE: /tmp
+          LOG_CHANNEL: stderr
+          FILESYSTEM_DRIVER: s3
+          AWS_BUCKET: !Ref Storage
+      Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref Storage
   Assets:
     Type: AWS::S3::Bucket
   AssetsBucketPolicy:
