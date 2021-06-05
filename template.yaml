@@ -121,3 +121,5 @@ Outputs:
     Value: !Sub "https://${DomainName}"
   AssetsBucketName:
     Value: !Ref Assets
+  StorageBucketName:
+    Value: !Ref Storage
