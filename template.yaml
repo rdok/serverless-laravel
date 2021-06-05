@@ -38,7 +38,6 @@ Resources:
           LOG_CHANNEL: stderr
           FILESYSTEM_DRIVER: s3
           AWS_BUCKET: !Ref Storage
-          AWS_DEFAULT_REGION: !Ref "AWS::Region"
       Events:
         Root:
           Type: HttpApi
