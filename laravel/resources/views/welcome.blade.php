@@ -10,7 +10,7 @@
     </head>
     <body class="main-content">
     <header>
-        <h1>AWS SAM - Laravel</h1>
+        <h1>Serverless Laravel</h1>
     </header>
 
     <img src="{{ asset('img/design.png') }}" alt="Infrastructure Design for AWS SAM Laravel">
