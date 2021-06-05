@@ -1,4 +1,4 @@
-name: Deploy
+name: Artisan
 env:
   ORG: rdokos
   NAME: serverless-laravel
