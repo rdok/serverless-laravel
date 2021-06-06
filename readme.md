@@ -1,6 +1,6 @@
 #  serverless Laravel
-> A production ready implementation of [The serverless LAMP stack part 4: Building a serverless Laravel application](https://aws.amazon.com/blogs/compute/the-serverless-lamp-stack-part-4-building-a-serverless-laravel-application/) & corresponding [template](https://github.com/aws-samples/php-examples-for-aws-lambda/blob/master/0.4-Building-A-Serverless-Laravel-App-With-AWS-SAM/template.yaml). Includes CI/CD using [GitHub Actions][ci_cd].
- 
+> Learn how to quickly set this up on my upcoming post at https://testing-stories.rdok.co.uk/2021/06/serverless-laravel/
+
 [![CI/CD prod][cd_prod_badge]][cd_prod]
 [![test-site][test_site_badge]][test_site]
 [![prod-site][prod_site_badge]][prod_site]
