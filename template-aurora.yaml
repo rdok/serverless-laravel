@@ -3,36 +3,41 @@ AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Description: Aurora Serverless DB Cluster
 Parameters:
-  AuroraVpcId:
+  VpcId:
     Type: AWS::EC2::VPC::Id
 Resources:
-  Secrets:
+  AuroraSecrets:
     Type: "AWS::SecretsManager::Secret"
     Properties:
-      Name: !Join ["-", [!Ref AWS::StackName, "secrets"]]
+      Name: !Sub "${AWS::StackName}-0"
       GenerateSecretString:
         PasswordLength: 30
         ExcludeCharacters: '"@/\'
         SecretStringTemplate: '{"username": "admin"}'
         GenerateStringKey: "password"
-  SecurityGroup:
+  AuthoriseAuroraAccess:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Ref AWS::StackName
-      GroupDescription: 'The security group for Aurora.'
-      VpcId: !Ref AuroraVpcId
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 3306
-          ToPort: 3306
-          CidrIp: 0.0.0.0/0
+      GroupDescription: 'Authorise Aurora access by attaching this security group.'
+      VpcId: !Ref VpcId
+      SecurityGroupEgress:
+        - CidrIp: 127.0.0.1/32
+          IpProtocol: "-1"
+  AuthoriseAuroraAccessRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      FromPort: 3306
+      ToPort: 3306
+      GroupId: !GetAtt AuthoriseAuroraAccess.GroupId
+      SourceSecurityGroupId: !GetAtt AuthoriseAuroraAccess.GroupId
   Aurora:
     Type: 'AWS::RDS::DBCluster'
     Properties:
-      VpcSecurityGroupIds: [!GetAtt SecurityGroup.GroupId]
-      MasterUsername: !Join ['', ['{{resolve:secretsmanager:', !Ref Secrets, ':SecretString:username}}' ]]
-      MasterUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref Secrets, ':SecretString:password}}' ]]
-      DBClusterIdentifier: !Ref "AWS::StackName"
+      DatabaseName: main
+      VpcSecurityGroupIds: [!GetAtt AuthoriseAuroraAccess.GroupId]
+      MasterUsername: !Sub '{{resolve:secretsmanager:${AuroraSecrets}:SecretString:username}}'
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${AuroraSecrets}:SecretString:password}}'
       Engine: aurora-mysql
       EngineVersion: 5.7.12
       EngineMode: serverless
@@ -44,11 +49,15 @@ Resources:
   LinkSecretsToAurora:
     Type: "AWS::SecretsManager::SecretTargetAttachment"
     Properties:
-      SecretId: !Ref Secrets
+      SecretId: !Ref AuroraSecrets
       TargetId: !Ref Aurora
       TargetType: AWS::RDS::DBCluster
 Outputs:
-  DBHost:
-    Value: !GetAtt Aurora.Endpoint.Address
-  SecretsARN:
-    Value: !Ref Secrets
+  AuroraSecretsARN:
+    Value: !Ref LinkSecretsToAurora
+    Export:
+      Name: !Sub "${AWS::StackName}-AuroraSecretsARN"
+  AuthoriseAuroraAccessSGGroupId:
+    Value: !GetAtt AuthoriseAuroraAccess.GroupId
+    Export:
+      Name: !Sub "${AWS::StackName}-AuthoriseAuroraAccessSGGroupId"
