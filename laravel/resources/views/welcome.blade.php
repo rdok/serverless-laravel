@@ -15,7 +15,7 @@
 
 <div style="border: 1px solid #555; width: 100%; padding: 1em 0 1em 0">
     <b>Aurora DB Showcase</b>
-    Page visits: {{ $websiteViewsCounter }}
+    Website visits: {{ $websiteViewsCounter }}
 </div>
 
 <hr>
@@ -23,7 +23,7 @@
     <img
         style="border: 1px solid #555; width: 100%"
         src="{{ asset('img/infrastructure.jpg') }}"
-        alt="Infrastructure Design for AWS SAM Laravel"
+        alt="Infrastructure Design for AWS SAM Laravel & Showcase getting static assets"
     />
 </a>
 
