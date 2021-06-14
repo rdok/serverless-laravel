@@ -6,15 +6,19 @@ start: ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && \
 		./vendor/bin/sail up -d && \
 		./vendor/bin/sail npm install && \
-		./vendor/bin/sail npm run watch-poll
-	# Visit http://localhost
+ 		./vendor/bin/sail npm run watch-poll
+
+up: ${LARAVEL_DIR}/vendor/bin/sail
+	cd $${LARAVEL_DIR} && \
+		./vendor/bin/sail up
 
 down: ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && \
 		./vendor/bin/sail down
 
 shell:
-	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 bash
+	cd ${LARAVEL_DIR} && \
+	docker-compose exec laravel.test bash
 
 config-clear: ${LARAVEL_DIR}/vendor
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app \
@@ -41,8 +45,8 @@ deploy-laravel: config-clear npm-cleanup composer-prod
 		WildcardCertificateARN='arn:aws:acm:us-east-1:353196159109:certificate/b7e23fbf-69a3-440f-8560-59f240f2cc09' \
 		AppKey='base64:offaTbmby+jJq+JxZlfMtjMb7BjyoNIGSj7bu49p6Zw=' \
 		BaseDomainRoute53HostedZoneId="ZSY7GT2NEDPN0" \
-		VpcId=$${VPC_ID} \
 		AuroraStackName='rdokos-local-serverless-laravel-aurora' \
+		VpcId=$${VPC_ID} \
 		SubnetIds=$${SUBNET_IDS}
 	make deploy-storage-showcase
 
@@ -89,14 +93,29 @@ deploy-aurora:
 		--filters Name=isDefault,Values=true \
 		--query 'Vpcs[*].VpcId' \
 		--output text) && \
+	VPC_ID=$$(aws ec2 describe-vpcs \
+		--filters Name=isDefault,Values=true \
+		--query 'Vpcs[*].VpcId' \
+		--output text) && \
+	SUBNET_IDS=$$(aws ec2 describe-subnets \
+		--filters "Name=vpc-id,Values=$${VPC_ID}" \
+		--query 'Subnets[*].SubnetId' \
+		--output text) && \
+	SUBNET_IDS=$$(echo $$SUBNET_IDS | sed 's/ /,/g') && \
 	sam deploy \
 		--config-env database \
 		--template template-aurora.yaml \
 		--parameter-overrides \
-			VpcId=$${VPC_ID}
+            VpcId=$${VPC_ID} \
+            SubnetIds=$${SUBNET_IDS} \
+            LaravelStackName='rdokos-local-serverless-laravel'
 
 vendor:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
+
+composer:
+	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 bash
+
 
 ${LARAVEL_DIR}/vendor:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
@@ -108,7 +127,7 @@ artisan: # command=inspire
 		--query 'Stacks[0].Outputs[?OutputKey==`ArtisanLambdaName`].OutputValue' \
 		--output text) && \
 	aws lambda invoke \
-	    --region eu-west-1 \
+		--region eu-west-1 \
 		--cli-binary-format raw-in-base64-out \
 		--function-name "$${LAMBDA_NAME}" \
 		--payload '"$(command)"' \
