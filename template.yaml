@@ -34,8 +34,8 @@ Globals:
       # WARNING: AWS does not properly delete generated network interfaces
       # As such, you should disable/delete all security groups here before any change
       SecurityGroupIds:
-        - !GetAtt AuthoriseInternetAccess.GroupId
-        - Fn::ImportValue: !Sub "${AuroraStackName}-AuthoriseAuroraAccessSGGroupId"
+        - 'sg-db0daabe' # TODO replace with dynamic
+#        - !GetAtt AuthoriseInternetAccess.GroupId
       SubnetIds: !Ref SubnetIds
     Environment:
       Variables:
@@ -69,10 +69,13 @@ Resources:
           Properties: {Path: '/{proxy+}', Method: ANY}
       Policies:
         - S3FullAccessPolicy: { BucketName: !Ref Storage }
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn:
+              Fn::ImportValue: !Sub "${AuroraStackName}-AuroraSecretsARN"
   Artisan:
     Type: AWS::Serverless::Function
     Properties:
-      Timeout: 300 # Artisan handles long processes
+      Timeout: 60 # Artisan handles long processes
       Layers:
         - "arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:9"
         - "arn:aws:lambda:eu-west-1:209497400698:layer:console:34"
@@ -80,17 +83,9 @@ Resources:
       Policies:
         - S3FullAccessPolicy:
             BucketName: !Ref Storage
-
-  AuthoriseInternetAccess:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: 'Authorise internet access.'
-      VpcId: !Ref VpcId
-      SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
-          CidrIp: 0.0.0.0/0
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn:
+              Fn::ImportValue: !Sub "${AuroraStackName}-AuroraSecretsARN"
 
   Assets:
     Type: AWS::S3::Bucket
