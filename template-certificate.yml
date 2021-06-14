@@ -24,3 +24,5 @@ Resources:
 Outputs:
   CertificateARN:
     Value: !Ref Certificate
+    Export:
+      Name: !Sub "${AWS::StackName}-CertificateARN"
