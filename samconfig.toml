@@ -2,9 +2,9 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "rdok-local-serverless-laravel"
+stack_name = "rdokos-local-serverless-laravel"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-gls3cd4hrabc"
-s3_prefix = "rdok-local-serverless-laravel"
+s3_prefix = "rdokos-local-serverless-laravel"
 region = "eu-west-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
@@ -12,10 +12,21 @@ capabilities = "CAPABILITY_IAM"
 [certificate]
 [certificate.deploy]
 [certificate.deploy.parameters]
-stack_name = "rdok-local-serverless-laravel-certificate"
+stack_name = "rdokos-local-serverless-laravel-certificate"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-tsljwszxn1ow"
-s3_prefix = "rdok-local-serverless-laravel-certificate"
+s3_prefix = "rdokos-local-serverless-laravel-certificate"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "DomainName=\"serverless-laravel-local.rdok.co.uk\" Route53HostedZoneId=\"ZSY7GT2NEDPN0\""
+parameter_overrides = "DomainName=\"serverless-laravel-local.rdok.co.uk\" BaseDomainRoute53HostedZoneId=\"ZSY7GT2NEDPN0\""
+
+
+[database]
+[database.deploy]
+[database.deploy.parameters]
+stack_name = "rdokos-local-serverless-laravel-aurora"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-gls3cd4hrabc"
+s3_prefix = "rdokos-local-serverless-laravel-aurora"
+region = "eu-west-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
