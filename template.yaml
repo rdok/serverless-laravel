@@ -6,8 +6,6 @@ Description: >
   https://github.com/aws-samples/php-examples-for-aws-lambda/blob/master/0.4-Building-A-Serverless-Laravel-App-With-AWS-SAM/template.yaml
 
 Parameters:
-  CertificateARN:
-    Type: String
   DomainName:
     Type: String
   WildcardCertificateARN:
@@ -23,6 +21,8 @@ Parameters:
     Type: List<AWS::EC2::Subnet::Id>
   AuroraStackName:
     Type: String
+  SecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
 
 Globals:
   Function:
@@ -31,11 +31,7 @@ Globals:
     Runtime: provided.al2
     MemorySize: 1024
     VpcConfig:
-      # WARNING: AWS does not properly delete generated network interfaces
-      # As such, you should disable/delete all security groups here before any change
-      SecurityGroupIds:
-        - 'sg-db0daabe' # TODO replace with dynamic
-#        - !GetAtt AuthoriseInternetAccess.GroupId
+      SecurityGroupIds: [ !Ref SecurityGroupId ]
       SubnetIds: !Ref SubnetIds
     Environment:
       Variables:
@@ -44,6 +40,10 @@ Globals:
         LOG_CHANNEL: stderr
         FILESYSTEM_DRIVER: s3
         AWS_BUCKET: !Ref Storage
+        AWS_ENDPOINT: !Join
+          - ""
+          - - "https://bucket"
+            - !Select [ "1", !Split [ "*", !Select ["0", !GetAtt S3PrivateLink.DnsEntries ] ] ]
         AURORA_SECRET_ARN:
           Fn::ImportValue: !Sub "${AuroraStackName}-AuroraSecretsARN"
 
@@ -52,7 +52,7 @@ Resources:
   Laravel:
     Type: AWS::Serverless::Function
     Properties:
-      Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+      Timeout: 28 # in seconds (API Gateway has a timeout of 30 seconds)
       Layers: ["arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:9"]
       Handler: public/index.php
       Environment:
@@ -63,10 +63,14 @@ Resources:
       Events:
         Root:
           Type: HttpApi
-          Properties: {Path: /, Method: ANY}
+          Properties:
+            Path: /
+            Method: ANY
         Proxy:
           Type: HttpApi
-          Properties: {Path: '/{proxy+}', Method: ANY}
+          Properties:
+            Path: '/{proxy+}'
+            Method: ANY
       Policies:
         - S3FullAccessPolicy: { BucketName: !Ref Storage }
         - AWSSecretsManagerGetSecretValuePolicy:
@@ -75,18 +79,25 @@ Resources:
   Artisan:
     Type: AWS::Serverless::Function
     Properties:
-      Timeout: 60 # Artisan handles long processes
+      Timeout: 300 # Artisan handles long processes. E.g. a simple migration command takes ~45 seconds
       Layers:
         - "arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:9"
         - "arn:aws:lambda:eu-west-1:209497400698:layer:console:34"
       Handler: artisan
       Policies:
-        - S3FullAccessPolicy:
-            BucketName: !Ref Storage
+        - S3FullAccessPolicy: { BucketName: !Ref Storage }
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn:
               Fn::ImportValue: !Sub "${AuroraStackName}-AuroraSecretsARN"
 
+  S3PrivateLink:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VpcId
+      VpcEndpointType: Interface
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      SubnetIds: !Ref SubnetIds
+      SecurityGroupIds: [ !Ref SecurityGroupId ]
   Assets:
     Type: AWS::S3::Bucket
   AssetsBucketPolicy:
