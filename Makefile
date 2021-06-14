@@ -6,7 +6,7 @@ start: ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && \
 		./vendor/bin/sail up -d && \
 		./vendor/bin/sail npm install && \
- 		./vendor/bin/sail npm run watch-poll
+		./vendor/bin/sail npm run watch-poll
 
 up: ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && \
@@ -25,6 +25,10 @@ config-clear: ${LARAVEL_DIR}/vendor
 		composer:2.0 bash -c 'php artisan config:clear'
 
 deploy-laravel: config-clear npm-cleanup composer-prod
+	SECURITY_GROUP_ID=$$(aws ec2 describe-security-groups \
+		--filters Name=group-name,Values=default \
+		--query 'SecurityGroups[*].GroupId' \
+		--output text) && \
 	VPC_ID=$$(aws ec2 describe-vpcs \
 		--filters Name=isDefault,Values=true \
 		--query 'Vpcs[*].VpcId' \
@@ -35,16 +39,17 @@ deploy-laravel: config-clear npm-cleanup composer-prod
 		--output text) && \
 	SUBNET_IDS=$$(echo $$SUBNET_IDS | sed 's/ /,/g') && \
 	sam deploy \
-        --no-confirm-changeset \
-	    --parameter-overrides \
-            DomainName="serverless-laravel-local.rdok.co.uk" \
-            WildcardCertificateARN='arn:aws:acm:us-east-1:353196159109:certificate/b7e23fbf-69a3-440f-8560-59f240f2cc09' \
-            AppKey='base64:offaTbmby+jJq+JxZlfMtjMb7BjyoNIGSj7bu49p6Zw=' \
-            BaseDomainRoute53HostedZoneId="ZSY7GT2NEDPN0" \
-            AuroraStackName='rdokos-local-serverless-laravel-aurora' \
-            CertificateStackName='rdokos-local-serverless-laravel-certificate' \
-            VpcId=$${VPC_ID} \
-            SubnetIds=$${SUBNET_IDS}; \
+		--no-confirm-changeset \
+		--parameter-overrides \
+			DomainName="serverless-laravel-local.rdok.co.uk" \
+			WildcardCertificateARN='arn:aws:acm:us-east-1:353196159109:certificate/b7e23fbf-69a3-440f-8560-59f240f2cc09' \
+			AppKey='base64:offaTbmby+jJq+JxZlfMtjMb7BjyoNIGSj7bu49p6Zw=' \
+			BaseDomainRoute53HostedZoneId="ZSY7GT2NEDPN0" \
+			AuroraStackName='rdokos-local-serverless-laravel-aurora' \
+			CertificateStackName='rdokos-local-serverless-laravel-certificate' \
+			SecurityGroupId=$${SECURITY_GROUP_ID} \
+			VpcId=$${VPC_ID} \
+			SubnetIds=$${SUBNET_IDS}; \
 	make deploy-storage-showcase && \
 	make deploy-assets && \
 	mv $${LARAVEL_DIR}/.env.backup $${LARAVEL_DIR}/.env
@@ -83,12 +88,16 @@ npm-cleanup:
 composer-prod:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c " \
 		composer install --optimize-autoloader --no-dev && \
-        php artisan config:clear && \
+		php artisan config:clear && \
 		php artisan view:cache"
 	# NOTE: config:cache is skipped due deployment breaking views path finding.
 # 		php artisan route:cache && \
 
 deploy-aurora:
+	SECURITY_GROUP_ID=$$(aws ec2 describe-security-groups \
+		--filters Name=group-name,Values=default \
+		--query 'SecurityGroups[*].GroupId' \
+		--output text) && \
 	VPC_ID=$$(aws ec2 describe-vpcs \
 		--filters Name=isDefault,Values=true \
 		--query 'Vpcs[*].VpcId' \
@@ -106,9 +115,10 @@ deploy-aurora:
 		--config-env database \
 		--template template-aurora.yaml \
 		--parameter-overrides \
-            VpcId=$${VPC_ID} \
-            SubnetIds=$${SUBNET_IDS} \
-            LaravelStackName='rdokos-local-serverless-laravel'
+			SecurityGroupId=$${SECURITY_GROUP_ID} \
+			VpcId=$${VPC_ID} \
+			SubnetIds=$${SUBNET_IDS} \
+			LaravelStackName='rdokos-local-serverless-laravel'
 
 vendor:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
