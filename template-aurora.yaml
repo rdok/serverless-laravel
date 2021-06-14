@@ -1,10 +1,11 @@
-
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Description: Aurora Serverless DB Cluster
 Parameters:
   VpcId:
     Type: AWS::EC2::VPC::Id
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
 Resources:
   AuroraSecrets:
     Type: "AWS::SecretsManager::Secret"
@@ -15,27 +16,20 @@ Resources:
         ExcludeCharacters: '"@/\'
         SecretStringTemplate: '{"username": "admin"}'
         GenerateStringKey: "password"
-  AuthoriseAuroraAccess:
-    Type: AWS::EC2::SecurityGroup
+  ConnectToSecrets:
+    Type: AWS::EC2::VPCEndpoint
     Properties:
-      GroupDescription: 'Authorise Aurora access by attaching this security group.'
+      PrivateDnsEnabled: true
       VpcId: !Ref VpcId
-      SecurityGroupEgress:
-        - CidrIp: 127.0.0.1/32
-          IpProtocol: "-1"
-  AuthoriseAuroraAccessRule:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      IpProtocol: tcp
-      FromPort: 3306
-      ToPort: 3306
-      GroupId: !GetAtt AuthoriseAuroraAccess.GroupId
-      SourceSecurityGroupId: !GetAtt AuthoriseAuroraAccess.GroupId
+      VpcEndpointType: Interface
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.secretsmanager'
+      SubnetIds: !Ref SubnetIds
+      SecurityGroupIds:
+        - 'sg-db0daabe' # TODO replace with dynamic
   Aurora:
     Type: 'AWS::RDS::DBCluster'
     Properties:
       DatabaseName: main
-      VpcSecurityGroupIds: [!GetAtt AuthoriseAuroraAccess.GroupId]
       MasterUsername: !Sub '{{resolve:secretsmanager:${AuroraSecrets}:SecretString:username}}'
       MasterUserPassword: !Sub '{{resolve:secretsmanager:${AuroraSecrets}:SecretString:password}}'
       Engine: aurora-mysql
@@ -57,7 +51,3 @@ Outputs:
     Value: !Ref LinkSecretsToAurora
     Export:
       Name: !Sub "${AWS::StackName}-AuroraSecretsARN"
-  AuthoriseAuroraAccessSGGroupId:
-    Value: !GetAtt AuthoriseAuroraAccess.GroupId
-    Export:
-      Name: !Sub "${AWS::StackName}-AuthoriseAuroraAccessSGGroupId"
