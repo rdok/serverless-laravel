@@ -9,10 +9,13 @@ class AuroraSecretsServiceProvider extends ServiceProvider
 {
     public function register()
     {
+        $auroraSecretARN = env('AURORA_SECRET_ARN');
+        if (empty($auroraSecretARN)) return;
+
         $this->app->singleton(SecretsManagerClient::class, function () {
             return new SecretsManagerClient([
                 'version' => '2017-10-17',
-                'region' => env('AWS_DEFAULT_REGION'),
+                'region' => env('AWS_DEFAULT_REGION', 'eu-west-1'),
                 'credentials' => [
                     'key' => env('AWS_ACCESS_KEY_ID'),
                     'secret' => env('AWS_SECRET_ACCESS_KEY'),
@@ -27,12 +30,15 @@ class AuroraSecretsServiceProvider extends ServiceProvider
      *
      * @param SecretsManagerClient $client
      * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function boot(SecretsManagerClient $client)
+    public function boot()
     {
         $auroraSecretARN = env('AURORA_SECRET_ARN');
-
         if (empty($auroraSecretARN)) return;
+
+        /** @var SecretsManagerClient $client */
+        $client = $this->app->make(SecretsManagerClient::class);
 
         $rawSecretString = $client
             ->getSecretValue(['SecretId' => $auroraSecretARN])
