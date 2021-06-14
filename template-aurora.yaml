@@ -6,6 +6,8 @@ Parameters:
     Type: AWS::EC2::VPC::Id
   SubnetIds:
     Type: List<AWS::EC2::Subnet::Id>
+  SecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
 Resources:
   AuroraSecrets:
     Type: "AWS::SecretsManager::Secret"
@@ -24,8 +26,7 @@ Resources:
       VpcEndpointType: Interface
       ServiceName: !Sub 'com.amazonaws.${AWS::Region}.secretsmanager'
       SubnetIds: !Ref SubnetIds
-      SecurityGroupIds:
-        - 'sg-db0daabe' # TODO replace with dynamic
+      SecurityGroupIds: [ !Ref SecurityGroupId ]
   Aurora:
     Type: 'AWS::RDS::DBCluster'
     Properties:
