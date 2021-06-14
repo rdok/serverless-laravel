@@ -25,11 +25,6 @@ config-clear: ${LARAVEL_DIR}/vendor
 		composer:2.0 bash -c 'php artisan config:clear'
 
 deploy-laravel: config-clear npm-cleanup composer-prod
-	CERTIFICATE_ARN=$$(aws cloudformation describe-stacks  \
-		--region us-east-1 \
-		--stack-name 'rdokos-local-serverless-laravel-certificate' \
-		--query 'Stacks[0].Outputs[?OutputKey==`CertificateARN`].OutputValue' \
-		--output text) && \
 	VPC_ID=$$(aws ec2 describe-vpcs \
 		--filters Name=isDefault,Values=true \
 		--query 'Vpcs[*].VpcId' \
@@ -39,16 +34,20 @@ deploy-laravel: config-clear npm-cleanup composer-prod
 		--query 'Subnets[*].SubnetId' \
 		--output text) && \
 	SUBNET_IDS=$$(echo $$SUBNET_IDS | sed 's/ /,/g') && \
-	sam deploy --parameter-overrides \
-		CertificateARN=$$CERTIFICATE_ARN \
-		DomainName="serverless-laravel-local.rdok.co.uk" \
-		WildcardCertificateARN='arn:aws:acm:us-east-1:353196159109:certificate/b7e23fbf-69a3-440f-8560-59f240f2cc09' \
-		AppKey='base64:offaTbmby+jJq+JxZlfMtjMb7BjyoNIGSj7bu49p6Zw=' \
-		BaseDomainRoute53HostedZoneId="ZSY7GT2NEDPN0" \
-		AuroraStackName='rdokos-local-serverless-laravel-aurora' \
-		VpcId=$${VPC_ID} \
-		SubnetIds=$${SUBNET_IDS}
-	make deploy-storage-showcase
+	sam deploy \
+        --no-confirm-changeset \
+	    --parameter-overrides \
+            DomainName="serverless-laravel-local.rdok.co.uk" \
+            WildcardCertificateARN='arn:aws:acm:us-east-1:353196159109:certificate/b7e23fbf-69a3-440f-8560-59f240f2cc09' \
+            AppKey='base64:offaTbmby+jJq+JxZlfMtjMb7BjyoNIGSj7bu49p6Zw=' \
+            BaseDomainRoute53HostedZoneId="ZSY7GT2NEDPN0" \
+            AuroraStackName='rdokos-local-serverless-laravel-aurora' \
+            CertificateStackName='rdokos-local-serverless-laravel-certificate' \
+            VpcId=$${VPC_ID} \
+            SubnetIds=$${SUBNET_IDS}; \
+	make deploy-storage-showcase && \
+	make deploy-assets && \
+	mv $${LARAVEL_DIR}/.env.backup $${LARAVEL_DIR}/.env
 
 deploy-storage-showcase:
 	STORAGE_BUCKET=$$(aws cloudformation describe-stacks \
@@ -67,7 +66,7 @@ deploy-assets:
 	aws s3 sync ./public s3://$${ASSETS_BUCKET_NAME}/assets --delete
 
 deploy-certificate:
-	sam deploy  --config-env certificate --template template-certificate.yml
+	sam deploy --no-confirm-changeset --config-env certificate --template template-certificate.yml
 
 npm-prod: ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && \
@@ -84,6 +83,7 @@ npm-cleanup:
 composer-prod:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c " \
 		composer install --optimize-autoloader --no-dev && \
+        php artisan config:clear && \
 		php artisan view:cache"
 	# NOTE: config:cache is skipped due deployment breaking views path finding.
 # 		php artisan route:cache && \
