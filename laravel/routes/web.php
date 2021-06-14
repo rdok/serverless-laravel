@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Stat;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,5 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    $stat = Stat::where(['name' => 'website_views'])->find(1);
+    $counter = $stat ? $stat->counter : 0;
+    return view('welcome', ['websiteViewsCounter' => $counter]);
 });
