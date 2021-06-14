@@ -13,6 +13,12 @@
     <h1>Serverless Laravel</h1>
 </header>
 
+<div style="border: 1px solid #555; width: 100%; padding: 1em 0 1em 0">
+    <b>Aurora DB Showcase</b>
+    Page visits: {{ $websiteViewsCounter }}
+</div>
+
+<hr>
 <a href="https://github.com/rdok/serverless-laravel/blob/1d29230cce06c4e956bfaaaefb4260b830363ed6/laravel/resources/views/welcome.blade.php#L17">
     <img
         style="border: 1px solid #555; width: 100%"
