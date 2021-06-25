@@ -1,5 +1,5 @@
 #  serverless Laravel
-> Learn how to quickly set this up at https://testing-stories.rdok.co.uk/2021/06/serverless-laravel/
+> Learn how to quickly set this up at https://stories.rdok.co.uk/2021/06/serverless-laravel/
 
 [![CI/CD prod][cd_prod_badge]][cd_prod]
 [![test-site][test_site_badge]][test_site]
