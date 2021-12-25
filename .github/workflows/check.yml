@@ -31,7 +31,9 @@ jobs:
       - name: Install Composer packages
         run: make install-composer
       - name: Build Laravel
-        run: make build-laravel
+        run: make ci-build-laravel
+      - name: Start Laravel
+        run: make ci-start-laravel-sail
       - name: Enable NPM Cache
         uses: actions/cache@v2
         with:
@@ -39,8 +41,12 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-
       - name: Install NPM packages
-        run: make install-npm
+        run: make ci-install-npm
+      - name: Compile JS & CSS
+        run: make ci-compile-js-css
       - name: Setup .env
         run: make setup-env
+      - name: Start Laravel Sail
+        run: make start-sail
       - name: Run Laravel Tests
         run: make test
