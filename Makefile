@@ -78,4 +78,4 @@ ${LARAVEL_DIR}/.env:
 
 test: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
 	cd ${LARAVEL_DIR} && \
-		./vendor/bin/sail run laravel.test bash -c 'php artisan test'
+		./vendor/bin/sail run laravel.test bash -c 'php artisan test --without-tty --no-interaction'
