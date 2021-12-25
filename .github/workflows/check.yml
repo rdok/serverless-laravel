@@ -30,6 +30,9 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer packages
         run: make install-composer
+      - name: Enable Docker Cache
+        uses: "satackey/action-docker-layer-caching@v0.0.11"
+        continue-on-error: true
       - name: Build Laravel
         run: make ci-build-laravel
       - name: Start Laravel
