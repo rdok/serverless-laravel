@@ -9,8 +9,23 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  sam-validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - run: sam validate
+
+  laravel-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Enable Composer Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - run: make test
