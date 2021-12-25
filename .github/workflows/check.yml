@@ -28,4 +28,9 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
-      - run: make test
+      - name: Setup .env
+        run: make setup-env
+      - name: Install Laravel
+        run: make install-laravel
+      - name: Run Laravel Tests
+        run: make test
