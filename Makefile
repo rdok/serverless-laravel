@@ -2,11 +2,20 @@ export UID=$(shell id -u)
 export GID=$(shell id -g)
 export LARAVEL_DIR=$(shell pwd)/laravel
 
+start-watch: start
+	./$${LARAVEL_DIR}/vendor/bin/sail npm run watch-poll
+
+build-laravel: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail build laravel.test
+
+install-npm: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
+	cd $${LARAVEL_DIR} && \
+		./vendor/bin/sail run laravel.test bash -c 'npm ci'
+
 start: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && \
 		./vendor/bin/sail up -d && \
-		./vendor/bin/sail npm install && \
-		./vendor/bin/sail npm run watch-poll
+		./vendor/bin/sail npm install
 	# Visit http://localhost
 
 down: ${LARAVEL_DIR}/vendor/bin/sail
@@ -50,6 +59,7 @@ npm-prod: ${LARAVEL_DIR}/vendor/bin/sail
 
 install-laravel:
 	make $${LARAVEL_DIR}/vendor/bin/sail
+
 ${LARAVEL_DIR}/vendor/bin/sail:
 	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
 
@@ -66,6 +76,8 @@ composer-prod:
 deploy-database:
 	sam deploy --config-env database --template template-aurora.yml
 
+install-composer:
+	make $${LARAVEL_DIR}/vendor
 ${LARAVEL_DIR}/vendor:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
 
@@ -76,6 +88,6 @@ ${LARAVEL_DIR}/.env:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c " \
 	composer install && php artisan key:generate"
 
-test: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
+test: start
 	cd ${LARAVEL_DIR} && \
-		./vendor/bin/sail run laravel.test bash -c 'php artisan test --without-tty --no-interaction'
+		./vendor/bin/sail exec laravel.test bash -c 'php artisan test --without-tty --no-interaction'
