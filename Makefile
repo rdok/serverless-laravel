@@ -72,3 +72,8 @@ ${LARAVEL_DIR}/.env:
 	cd ${LARAVEL_DIR} && cp .env.example .env
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c " \
 	composer install && php artisan key:generate"
+
+test: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
+	cd ${LARAVEL_DIR} && \
+		./vendor/bin/sail run laravel.test bash -c 'php artisan test'
+
