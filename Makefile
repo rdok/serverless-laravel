@@ -5,13 +5,6 @@ export LARAVEL_DIR=$(shell pwd)/laravel
 start-watch: start
 	./$${LARAVEL_DIR}/vendor/bin/sail npm run watch-poll
 
-build-laravel: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
-	cd $${LARAVEL_DIR} && ./vendor/bin/sail build laravel.test
-
-install-npm: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
-	cd $${LARAVEL_DIR} && \
-		./vendor/bin/sail run laravel.test bash -c 'npm ci'
-
 start: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && \
 		./vendor/bin/sail up -d && \
@@ -91,3 +84,17 @@ ${LARAVEL_DIR}/.env:
 test: start
 	cd ${LARAVEL_DIR} && \
 		./vendor/bin/sail exec laravel.test bash -c 'php artisan test --without-tty --no-interaction'
+
+ci-build-laravel:
+	# For build performance; docker pull is faster vs caching.
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail pull || true
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail build laravel.test
+ci-start-laravel-sail:
+	cd $${LARAVEL_DIR} && \
+		./vendor/bin/sail up -d
+ci-install-npm:
+	cd $${LARAVEL_DIR} && \
+		./vendor/bin/sail exec laravel.test bash -c 'npm ci'
+ci-compile-js-css:
+	cd $${LARAVEL_DIR} && \
+		./vendor/bin/sail exec laravel.test bash -c 'npm run development'
