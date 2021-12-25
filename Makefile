@@ -90,11 +90,8 @@ ci-build-laravel:
 	cd $${LARAVEL_DIR} && ./vendor/bin/sail pull || true
 	cd $${LARAVEL_DIR} && ./vendor/bin/sail build laravel.test
 ci-start-laravel-sail:
-	cd $${LARAVEL_DIR} && \
-		./vendor/bin/sail up -d
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail up -d
 ci-install-npm:
-	cd $${LARAVEL_DIR} && \
-		./vendor/bin/sail exec laravel.test bash -c 'npm ci'
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail exec --no-TTY laravel.test bash -c 'npm ci'
 ci-compile-js-css:
-	cd $${LARAVEL_DIR} && \
-		./vendor/bin/sail exec laravel.test bash -c 'npm run development'
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail exec --no-TTY laravel.test bash -c 'npm run development'
