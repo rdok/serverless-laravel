@@ -2,7 +2,7 @@ export UID=$(shell id -u)
 export GID=$(shell id -g)
 export LARAVEL_DIR=$(shell pwd)/laravel
 
-start: ${LARAVEL_DIR}/vendor/bin/sail
+start: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && \
 		./vendor/bin/sail up -d && \
 		./vendor/bin/sail npm install && \
@@ -10,8 +10,7 @@ start: ${LARAVEL_DIR}/vendor/bin/sail
 	# Visit http://localhost
 
 down: ${LARAVEL_DIR}/vendor/bin/sail
-	cd $${LARAVEL_DIR} && \
-		./vendor/bin/sail down
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail down
 
 shell:
 	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 bash
@@ -67,3 +66,9 @@ deploy-database:
 
 ${LARAVEL_DIR}/vendor:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
+
+
+${LARAVEL_DIR}/.env:
+	cd ${LARAVEL_DIR} && cp .env.example .env
+	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c " \
+	composer install && php artisan key:generate"
