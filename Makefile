@@ -48,6 +48,8 @@ npm-prod: ${LARAVEL_DIR}/vendor/bin/sail
 		./vendor/bin/sail npm run prod
 	make npm-cleanup
 
+install-laravel:
+	make $${LARAVEL_DIR}/vendor/bin/sail
 ${LARAVEL_DIR}/vendor/bin/sail:
 	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
 
@@ -67,7 +69,8 @@ deploy-database:
 ${LARAVEL_DIR}/vendor:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
 
-
+setup-env:
+	make $${LARAVEL_DIR}/.env
 ${LARAVEL_DIR}/.env:
 	cd ${LARAVEL_DIR} && cp .env.example .env
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c " \
@@ -76,4 +79,3 @@ ${LARAVEL_DIR}/.env:
 test: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
 	cd ${LARAVEL_DIR} && \
 		./vendor/bin/sail run laravel.test bash -c 'php artisan test'
-
