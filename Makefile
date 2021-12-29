@@ -104,4 +104,4 @@ ci-setup-env:
 
 ci-test:
 	cd ${LARAVEL_DIR} && \
-		./vendor/bin/sail exec laravel.test bash -c 'php artisan test --without-tty --no-interaction'
+		./vendor/bin/sail exec --no-TTY laravel.test bash -c 'php artisan test --without-tty --no-interaction'
