@@ -69,8 +69,6 @@ composer-prod:
 deploy-database:
 	sam deploy --config-env database --template template-aurora.yml
 
-install-composer:
-	make $${LARAVEL_DIR}/vendor
 ${LARAVEL_DIR}/vendor:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
 
@@ -85,6 +83,15 @@ test: start
 	cd ${LARAVEL_DIR} && \
 		./vendor/bin/sail exec laravel.test bash -c 'php artisan test --without-tty --no-interaction'
 
+################################################################################
+# CI/CD
+################################################################################
+ci-install-composer-packages:
+	docker run -u $${UID}:$${GID} \
+		--volume "$${LARAVEL_DIR}/.composer:/tmp" \
+		--volume "$${LARAVEL_DIR}:/app" \
+		composer:2.0 install
+	#docker run -u $${UID}:$${GID} -v "$${LARAVEL_DIR}:/app" composer:2.0 bash -c "ls -lat $${CACHE_DIR}"
 ci-build-laravel:
 	# For build performance; docker pull is faster vs caching.
 	cd $${LARAVEL_DIR} && ./vendor/bin/sail pull || true
