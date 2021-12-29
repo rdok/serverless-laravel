@@ -2,11 +2,13 @@ export UID=$(shell id -u)
 export GID=$(shell id -g)
 export LARAVEL_DIR=$(shell pwd)/laravel
 
+start-watch: start
+	./$${LARAVEL_DIR}/vendor/bin/sail npm run watch-poll
+
 start: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && \
 		./vendor/bin/sail up -d && \
-		./vendor/bin/sail npm install && \
-		./vendor/bin/sail npm run watch-poll
+		./vendor/bin/sail npm install
 	# Visit http://localhost
 
 down: ${LARAVEL_DIR}/vendor/bin/sail
@@ -48,6 +50,9 @@ npm-prod: ${LARAVEL_DIR}/vendor/bin/sail
 		./vendor/bin/sail npm run prod
 	make npm-cleanup
 
+install-laravel:
+	make $${LARAVEL_DIR}/vendor/bin/sail
+
 ${LARAVEL_DIR}/vendor/bin/sail:
 	docker run -it -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
 
@@ -67,8 +72,36 @@ deploy-database:
 ${LARAVEL_DIR}/vendor:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
 
-
 ${LARAVEL_DIR}/.env:
 	cd ${LARAVEL_DIR} && cp .env.example .env
-	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c " \
-	composer install && php artisan key:generate"
+	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c "php artisan key:generate"
+
+test: start
+	cd ${LARAVEL_DIR} && \
+		./vendor/bin/sail exec laravel.test bash -c 'php artisan test --without-tty --no-interaction'
+
+################################################################################
+# CI/CD
+################################################################################
+ci-install-composer-packages:
+	docker run -u $${UID}:$${GID} \
+		--volume "$${LARAVEL_DIR}/.composer:/tmp" \
+		--volume "$${LARAVEL_DIR}:/app" \
+		composer:2.0 install
+	#docker run -u $${UID}:$${GID} -v "$${LARAVEL_DIR}:/app" composer:2.0 bash -c "ls -lat $${CACHE_DIR}"
+ci-build-laravel:
+	# For build performance; docker pull is faster vs caching.
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail pull || true
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail build laravel.test
+ci-start-laravel-sail:
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail up -d
+ci-install-npm:
+	cd $${LARAVEL_DIR} && npm ci
+ci-compile-js-css:
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail run --rm laravel.test bash -c 'npm run development'
+ci-setup-env:
+	make $${LARAVEL_DIR}/.env
+
+ci-test:
+	cd ${LARAVEL_DIR} && \
+		./vendor/bin/sail run --rm laravel.test bash -c 'php artisan test'
