@@ -18,8 +18,9 @@ on:
         description: "The artisan command to run."
         default: inspire
 jobs:
-  build:
-    runs-on: ubuntu-20.04
+  artisan:
+    name: Run Artisan Command
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Prepare environment variables

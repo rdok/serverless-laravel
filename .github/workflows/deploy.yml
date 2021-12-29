@@ -20,7 +20,11 @@ on:
         default: prod
 jobs:
   deploy:
-    runs-on: ubuntu-20.04
+    name: Deploy
+    environment:
+      name: ${{ github.event.inputs.environment == '' && 'test' || github.event.inputs.environment }}
+    concurrency: ${{ github.event.inputs.environment == '' && 'test' || github.event.inputs.environment }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Prepare environment variables
