@@ -42,8 +42,8 @@ jobs:
           restore-keys: ${{ runner.os }}-node-
       - name: Install NPM packages
         run: make ci-install-npm
-#      - name: Compile JS & CSS
-#        run: make ci-compile-js-css
+      - name: Compile JS & CSS
+        run: make ci-compile-js-css
 #      - name: Setup .env
 #        run: make setup-env
 #      - name: Start Laravel Sail
