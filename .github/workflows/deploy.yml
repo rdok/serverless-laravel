@@ -20,6 +20,7 @@ on:
         default: prod
 jobs:
   deploy:
+    name: Deploy
     environment:
       name: ${{ github.event.inputs.environment == '' && 'test' || github.event.inputs.environment }}
     concurrency: ${{ github.event.inputs.environment == '' && 'test' || github.event.inputs.environment }}
