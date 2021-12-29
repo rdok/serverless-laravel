@@ -72,12 +72,9 @@ deploy-database:
 ${LARAVEL_DIR}/vendor:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app composer:2.0 install
 
-setup-env:
-	make $${LARAVEL_DIR}/.env
 ${LARAVEL_DIR}/.env:
 	cd ${LARAVEL_DIR} && cp .env.example .env
-	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c " \
-	composer install && php artisan key:generate"
+	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 bash -c "php artisan key:generate"
 
 test: start
 	cd ${LARAVEL_DIR} && \
@@ -102,3 +99,9 @@ ci-install-npm:
 	cd $${LARAVEL_DIR} && npm ci
 ci-compile-js-css:
 	cd $${LARAVEL_DIR} && ./vendor/bin/sail exec --no-TTY laravel.test bash -c 'npm run development'
+ci-setup-env:
+	make $${LARAVEL_DIR}/.env
+
+ci-test:
+	cd ${LARAVEL_DIR} && \
+		./vendor/bin/sail exec laravel.test bash -c 'php artisan test --without-tty --no-interaction'
