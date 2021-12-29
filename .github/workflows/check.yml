@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Enable Docker Cache
+        uses: "satackey/action-docker-layer-caching@v0.0.11"
+        continue-on-error: true
       - name: Enable Composer Cache
         uses: actions/cache@v2
         with:
@@ -27,9 +30,6 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer packages
         run: make ci-install-composer-packages
-#      - name: Enable Docker Cache
-#        uses: "satackey/action-docker-layer-caching@v0.0.11"
-#        continue-on-error: true
 #      - name: Build Laravel
 #        run: make ci-build-laravel
 #      - name: Start Laravel
