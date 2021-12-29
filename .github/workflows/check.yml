@@ -19,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Enable Docker Cache
+      - name: Download cached docker layers
         uses: "satackey/action-docker-layer-caching@v0.0.11"
         continue-on-error: true
-      - name: Enable Composer Cache
+      - name: Download cached Composer packages
         uses: actions/cache@v2
         with:
           path: laravel/.composer
@@ -32,8 +32,8 @@ jobs:
         run: make ci-install-composer-packages
       - name: Build Laravel
         run: make ci-build-laravel
-#      - name: Start Laravel
-#        run: make ci-start-laravel-sail
+      - name: Start Laravel
+        run: make ci-start-laravel-sail
 #      - name: Enable NPM Cache
 #        uses: actions/cache@v2
 #        with:
