@@ -19,38 +19,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-        working-directory: laravel
       - name: Enable Composer Cache
         uses: actions/cache@v2
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
+          path: laravel/.composer
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer packages
-        run: make install-composer
-      - name: Enable Docker Cache
-        uses: "satackey/action-docker-layer-caching@v0.0.11"
-        continue-on-error: true
-      - name: Build Laravel
-        run: make ci-build-laravel
-      - name: Start Laravel
-        run: make ci-start-laravel-sail
-      - name: Enable NPM Cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-
-      - name: Install NPM packages
-        run: make ci-install-npm
-      - name: Compile JS & CSS
-        run: make ci-compile-js-css
-      - name: Setup .env
-        run: make setup-env
-      - name: Start Laravel Sail
-        run: make start-sail
-      - name: Run Laravel Tests
-        run: make test
+        run: make ci-install-composer-packages
+#      - name: Enable Docker Cache
+#        uses: "satackey/action-docker-layer-caching@v0.0.11"
+#        continue-on-error: true
+#      - name: Build Laravel
+#        run: make ci-build-laravel
+#      - name: Start Laravel
+#        run: make ci-start-laravel-sail
+#      - name: Enable NPM Cache
+#        uses: actions/cache@v2
+#        with:
+#          path: ~/.npm
+#          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+#          restore-keys: ${{ runner.os }}-node-
+#      - name: Install NPM packages
+#        run: make ci-install-npm
+#      - name: Compile JS & CSS
+#        run: make ci-compile-js-css
+#      - name: Setup .env
+#        run: make setup-env
+#      - name: Start Laravel Sail
+#        run: make start-sail
+#      - name: Run Laravel Tests
+#        run: make test
