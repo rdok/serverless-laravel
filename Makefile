@@ -98,10 +98,10 @@ ci-start-laravel-sail:
 ci-install-npm:
 	cd $${LARAVEL_DIR} && npm ci
 ci-compile-js-css:
-	cd $${LARAVEL_DIR} && ./vendor/bin/sail exec laravel.test bash -c 'npm run development'
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail exec --tty laravel.test bash -c 'npm run development'
 ci-setup-env:
 	make $${LARAVEL_DIR}/.env
 
 ci-test:
 	cd ${LARAVEL_DIR} && \
-		./vendor/bin/sail exec laravel.test bash -c 'php artisan test'
+		./vendor/bin/sail exec --tty laravel.test bash -c 'php artisan test'
