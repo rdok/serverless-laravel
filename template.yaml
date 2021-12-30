@@ -21,11 +21,11 @@ Resources:
   Laravel:
     Type: AWS::Serverless::Function
     Properties:
-      Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+      Timeout: 30 # in seconds (maxim allowed API Gateway timeout)
       Tracing: Active
       MemorySize: 1024
       CodeUri: laravel
-      Layers: ["arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:9"]
+      Layers: ["arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:31"]
       Handler: public/index.php
       Runtime: provided.al2
       Environment:
@@ -51,13 +51,13 @@ Resources:
   Artisan:
     Type: AWS::Serverless::Function
     Properties:
-      Timeout: 300 # Artisan may handle long
+      Timeout: 300 # Artisan may
       Tracing: Active
       MemorySize: 1024
       CodeUri: laravel
       Layers:
-        - "arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:9"
-        - "arn:aws:lambda:eu-west-1:209497400698:layer:console:34"
+        - "arn:aws:lambda:eu-west-1:209497400698:layer:php-80-fpm:31"
+        - "arn:aws:lambda:eu-west-1:209497400698:layer:console:56"
       Handler: artisan
       Runtime: provided.al2
       Environment:
