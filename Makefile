@@ -3,9 +3,9 @@ export GID=$(shell id -g)
 export LARAVEL_DIR=$(shell pwd)/laravel
 
 start-watch: start
-	./$${LARAVEL_DIR}/vendor/bin/sail npm run watch-poll
+	cd $${LARAVEL_DIR} && ./vendor/bin/sail npm run watch-poll
 
-start: ${LARAVEL_DIR}/.env ${LARAVEL_DIR}/vendor/bin/sail
+start: ${LARAVEL_DIR}/vendor/bin/sail ${LARAVEL_DIR}/.env
 	cd $${LARAVEL_DIR} && \
 		./vendor/bin/sail up -d && \
 		./vendor/bin/sail npm install
