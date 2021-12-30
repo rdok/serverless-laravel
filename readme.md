@@ -9,7 +9,8 @@
 ![alt text][infrastructure]
 
 ### Develop
-`make start` to start local development. See `Makefile` for more.
+`make` to start local development. See `Makefile` for more.
+- `make start-sam` to run laravel through AWS SAM lambda. Use this to verifying bref integration mainly; else rely on `make` which is a more efficient workflow.
 
 [bref]: https://bref.sh/
 [ci_cd]: https://github.com/rdok/serverless-laravel/actions

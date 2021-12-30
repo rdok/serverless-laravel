@@ -11,6 +11,11 @@ start: ${LARAVEL_DIR}/vendor/bin/sail ${LARAVEL_DIR}/.env
 		./vendor/bin/sail npm install
 	# Visit http://localhost
 
+# Fails on WSL https://github.com/thecodingmachine/docker-images-php/issues/206
+start-sam:
+	sam local start-api --host 0.0.0.0 --port 3031 --static-dir laravel/public \
+		--parameter-overrides GlobalFunctionTimeout=30
+
 down: ${LARAVEL_DIR}/vendor/bin/sail
 	cd $${LARAVEL_DIR} && ./vendor/bin/sail down
 
