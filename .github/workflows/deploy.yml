@@ -19,8 +19,11 @@ on:
         description: "Allowed values: prod, test"
         default: prod
 jobs:
+  check:
+    uses: rdok/serverless-laravel/.github/workflows/check.yml@main
   deploy:
     name: Deploy
+    needs: [check]
     environment:
       name: ${{ github.event.inputs.environment == '' && 'test' || github.event.inputs.environment }}
     concurrency: ${{ github.event.inputs.environment == '' && 'test' || github.event.inputs.environment }}

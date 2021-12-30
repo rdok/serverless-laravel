@@ -38,7 +38,5 @@ jobs:
         run: make ci-compile-js-css
       - name: Setup .env
         run: make ci-setup-env
-#      - name: Start Laravel Sail
-#        run: make start-sail
       - name: Run Laravel Tests
         run: make ci-test
