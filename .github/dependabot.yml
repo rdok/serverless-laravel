@@ -2,10 +2,10 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
-    schedule: { interval: "daily" }
+    schedule: { interval: "monthly" }
   - package-ecosystem: "composer"
     directory: "laravel"
-    schedule: { interval: "daily" }
+    schedule: { interval: "monthly" }
   - package-ecosystem: "npm"
     directory: "laravel"
-    schedule: { interval: "daily" }
+    schedule: { interval: "monthly" }
