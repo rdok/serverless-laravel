@@ -105,3 +105,6 @@ ci-setup-env:
 ci-test:
 	cd ${LARAVEL_DIR} && \
 		./vendor/bin/sail run --rm laravel.test bash -c 'php artisan test'
+
+maintenance-update-all:
+	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 composer update
