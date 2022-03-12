@@ -113,3 +113,4 @@ ci-test:
 
 maintenance-update-all:
 	docker run -u $${UID}:$${GID} -v "${LARAVEL_DIR}":/app  composer:2.0 composer update
+	cd $${LARAVEL_DIR} && npx npm-check --update-all
